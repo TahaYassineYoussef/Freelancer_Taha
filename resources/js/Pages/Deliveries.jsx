@@ -1,7 +1,8 @@
 import PanelLayout from '@/Layouts/PanelLayout';
 import RequestChangesModal from '@/Components/RequestChangesModal';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import useNotifFlash from '@/useNotifFlash';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 function fmtDate(value) {
     if (!value) return '—';
@@ -9,21 +10,9 @@ function fmtDate(value) {
 }
 
 export default function Deliveries({ tasks }) {
-    const page = usePage();
     const [changeTask, setChangeTask] = useState(null);
-    const [highlight, setHighlight] = useState(null);
 
-    useEffect(() => {
-        const id = new URLSearchParams(page.url.split('?')[1] || '').get('task');
-        if (!id) return;
-        const el = document.getElementById(`delivery-${id}`);
-        if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setHighlight(Number(id));
-            const t = setTimeout(() => setHighlight(null), 2600);
-            return () => clearTimeout(t);
-        }
-    }, [page.url]);
+    useNotifFlash('delivery');
 
     const approve = (task) => router.post(route('tasks.approve', task.id), {}, { preserveScroll: true });
 
@@ -53,9 +42,7 @@ export default function Deliveries({ tasks }) {
                             <div
                                 key={task.id}
                                 id={`delivery-${task.id}`}
-                                className={`rounded-2xl border bg-ink-700 p-6 transition ${
-                                    highlight === task.id ? 'animate-pulse border-gold ring-4 ring-gold/60' : done ? 'border-white/5' : 'border-purple-500/20'
-                                }`}
+                                className={`rounded-2xl border bg-ink-700 p-6 ${done ? 'border-white/5' : 'border-purple-500/20'}`}
                             >
                                 <div className="flex flex-wrap items-start justify-between gap-4">
                                     <div className="min-w-0 flex-1">

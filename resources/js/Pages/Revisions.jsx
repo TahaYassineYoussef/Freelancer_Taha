@@ -1,6 +1,7 @@
 import PanelLayout from '@/Layouts/PanelLayout';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import useNotifFlash from '@/useNotifFlash';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 function fmtDate(value) {
     if (!value) return '—';
@@ -58,21 +59,9 @@ function RedeliverForm({ task, onDone }) {
 }
 
 export default function Revisions({ tasks }) {
-    const page = usePage();
     const [open, setOpen] = useState(null);
-    const [highlight, setHighlight] = useState(null);
 
-    useEffect(() => {
-        const id = new URLSearchParams(page.url.split('?')[1] || '').get('task');
-        if (!id) return;
-        const el = document.getElementById(`revision-${id}`);
-        if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setHighlight(Number(id));
-            const t = setTimeout(() => setHighlight(null), 2600);
-            return () => clearTimeout(t);
-        }
-    }, [page.url]);
+    useNotifFlash('revision');
 
     return (
         <PanelLayout title="Change requests">
@@ -93,9 +82,7 @@ export default function Revisions({ tasks }) {
                         <div
                             key={task.id}
                             id={`revision-${task.id}`}
-                            className={`rounded-2xl border bg-ink-700 p-6 transition ${
-                                highlight === task.id ? 'animate-pulse border-gold ring-4 ring-gold/60' : 'border-amber-500/20'
-                            }`}
+                            className="rounded-2xl border border-amber-500/20 bg-ink-700 p-6"
                         >
                             <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="min-w-0 flex-1">
