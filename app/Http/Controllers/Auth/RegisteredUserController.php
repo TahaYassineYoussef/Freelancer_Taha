@@ -37,10 +37,14 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Public registration ALWAYS creates a client. The role is hard-coded here
+        // (never taken from the request) so nobody can sign up as the freelancer —
+        // there is exactly one freelancer, and he is seeded, not registered.
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'client',
         ]);
 
         event(new Registered($user));

@@ -18,9 +18,9 @@ class GoogleController extends Controller
      */
     public function redirect(): RedirectResponse
     {
-        if (! config('services.google.client_id')) {
+        if (! config('services.google.client_id') || ! config('services.google.client_secret')) {
             return redirect()->route('login')
-                ->withErrors(['email' => 'Google login is not configured yet.']);
+                ->withErrors(['email' => 'Google login is not fully configured yet.']);
         }
 
         return Socialite::driver('google')->redirect();

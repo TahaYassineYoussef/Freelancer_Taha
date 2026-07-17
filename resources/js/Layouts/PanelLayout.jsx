@@ -51,6 +51,9 @@ export default function PanelLayout({ title, children }) {
                                 <NavItem href={route('contact.index')} active={current?.startsWith('contact')}>
                                     Inbox
                                 </NavItem>
+                                <NavItem href={route('moderation.index')} active={current?.startsWith('moderation')}>
+                                    Blocked
+                                </NavItem>
                                 <NavItem href={route('cv.edit')} active={current?.startsWith('cv')}>
                                     Manage CV
                                 </NavItem>

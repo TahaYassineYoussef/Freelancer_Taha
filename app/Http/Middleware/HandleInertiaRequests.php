@@ -44,8 +44,11 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
-            // Only show the "Continue with Google" button once OAuth is set up.
-            'googleEnabled' => (bool) config('services.google.client_id'),
+            // Only show the "Continue with Google" button once OAuth is fully set up.
+            // Both halves are required: the ID alone would render a button that
+            // fails at the token-exchange step.
+            'googleEnabled' => (bool) config('services.google.client_id')
+                && (bool) config('services.google.client_secret'),
             'paypal' => fn () => [
                 // Prefer what the freelancer saved in Payment Settings; fall back to .env.
                 'clientId' => $this->freelancer()?->paypal_client_id

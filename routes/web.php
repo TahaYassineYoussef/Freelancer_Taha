@@ -6,6 +6,7 @@ use App\Http\Controllers\CvController;
 use App\Http\Controllers\CvPdfController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ModerationLogController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentSettingsController;
 use App\Http\Controllers\PortfolioController;
@@ -68,6 +69,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/contact-messages', [ContactController::class, 'index'])->name('contact.index');
         Route::delete('/contact-messages/{contactMessage}', [ContactController::class, 'destroy'])->name('contact.destroy');
+
+        // Blocked submissions (scam / profanity caught by moderation)
+        Route::get('/blocked', [ModerationLogController::class, 'index'])->name('moderation.index');
+        Route::delete('/blocked/{moderationLog}', [ModerationLogController::class, 'destroy'])->name('moderation.destroy');
     });
 
     // CV management (freelancer only)
