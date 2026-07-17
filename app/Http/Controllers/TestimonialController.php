@@ -27,6 +27,16 @@ class TestimonialController extends Controller
             'approved' => false,
         ]);
 
+        \App\Models\User::where('role', 'freelancer')->first()?->notify(
+            new \App\Notifications\ActivityNotification(
+                'review',
+                'New review',
+                "{$request->user()->name} left a {$data['rating']}★ review — approve it to publish.",
+                route('cv.edit'),
+                '⭐',
+            )
+        );
+
         return back()->with('success', 'Thanks for your review! It will appear once Taha approves it.');
     }
 

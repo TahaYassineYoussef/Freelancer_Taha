@@ -1,3 +1,4 @@
+import NotificationBell from '@/Components/NotificationBell';
 import { Link, usePage } from '@inertiajs/react';
 
 function NavItem({ href, active, badge, children }) {
@@ -59,6 +60,7 @@ export default function PanelLayout({ title, children }) {
                                 </NavItem>
                             </>
                         )}
+                        <NotificationBell />
                         <Link
                             href={route('logout')}
                             method="post"

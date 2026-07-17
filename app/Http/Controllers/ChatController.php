@@ -68,6 +68,13 @@ class ChatController extends Controller
         ]);
 
         $user->notify(new NewChatMessage($message));
+        $user->notify(new \App\Notifications\ActivityNotification(
+            'message',
+            'New message',
+            "{$me->name}: ".\Illuminate\Support\Str::limit($message->body, 60),
+            route('chat.index', ['with' => $me->id]),
+            '💬',
+        ));
 
         return response()->json([
             'messages' => $this->conversation($me->id, $user->id),

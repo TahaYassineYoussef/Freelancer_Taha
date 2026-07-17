@@ -39,6 +39,7 @@ class HandleInertiaRequests extends Middleware
                 'unreadMessages' => fn () => $request->user()
                     ? Message::where('receiver_id', $request->user()->id)->whereNull('read_at')->count()
                     : 0,
+                'notifications' => fn () => $this->notifications($request),
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
@@ -69,6 +70,32 @@ class HandleInertiaRequests extends Middleware
         return [
             'number' => $freelancer?->d17_number,
             'qr' => $freelancer?->d17_qr ? Storage::url($freelancer->d17_qr) : null,
+        ];
+    }
+
+    /**
+     * Unread count + the 10 most recent in-app notifications for the bell.
+     *
+     * @return array{unread:int, items:array}
+     */
+    private function notifications(Request $request): array
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return ['unread' => 0, 'items' => []];
+        }
+
+        $items = $user->notifications()->latest()->limit(10)->get()->map(fn ($n) => [
+            'id' => $n->id,
+            'read' => $n->read_at !== null,
+            'created_at' => $n->created_at,
+            ...$n->data,
+        ]);
+
+        return [
+            'unread' => $user->unreadNotifications()->count(),
+            'items' => $items,
         ];
     }
 

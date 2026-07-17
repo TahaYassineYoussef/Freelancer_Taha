@@ -26,7 +26,15 @@ class ContactController extends Controller
 
         $contact = ContactMessage::create($data);
 
-        User::where('role', 'freelancer')->first()?->notify(new ContactReceived($contact));
+        $freelancer = User::where('role', 'freelancer')->first();
+        $freelancer?->notify(new ContactReceived($contact)); // email
+        $freelancer?->notify(new \App\Notifications\ActivityNotification(
+            'contact',
+            'New contact message',
+            "{$contact->name}: ".\Illuminate\Support\Str::limit($contact->body, 60),
+            route('contact.index'),
+            '✉️',
+        ));
 
         return back()->with('success', 'Thanks for reaching out! Taha will reply to you by email soon.');
     }

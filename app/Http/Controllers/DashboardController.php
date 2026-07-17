@@ -48,6 +48,9 @@ class DashboardController extends Controller
         return $tasks->map(function (Task $task) {
             $task->is_paid = $task->payments->where('status', 'completed')->isNotEmpty();
             $task->pending_payment = $task->payments->where('status', 'pending')->isNotEmpty();
+            $task->deliverable_url = $task->deliverable_file
+                ? \Illuminate\Support\Facades\Storage::url($task->deliverable_file)
+                : null;
 
             return $task;
         });

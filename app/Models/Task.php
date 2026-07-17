@@ -14,11 +14,13 @@ class Task extends Model
 
     protected $fillable = [
         'user_id', 'title', 'description', 'category', 'budget', 'deadline', 'status',
+        'deliverable_file', 'deliverable_note', 'deliverable_link', 'delivered_at',
     ];
 
     protected $casts = [
         'deadline' => 'date',
         'budget' => 'decimal:2',
+        'delivered_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

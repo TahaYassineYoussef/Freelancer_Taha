@@ -7,6 +7,7 @@ use App\Http\Controllers\CvPdfController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ModerationLogController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentSettingsController;
 use App\Http\Controllers\PortfolioController;
@@ -39,6 +40,17 @@ Route::middleware('auth')->group(function () {
         ->name('tasks.store');
     Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.status');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
+    // Task workflow
+    Route::post('/tasks/{task}/accept', [TaskController::class, 'accept'])->name('tasks.accept');
+    Route::post('/tasks/{task}/decline', [TaskController::class, 'decline'])->name('tasks.decline');
+    Route::post('/tasks/{task}/deliver', [TaskController::class, 'deliver'])->name('tasks.deliver');
+    Route::post('/tasks/{task}/approve', [TaskController::class, 'approve'])->name('tasks.approve');
+    Route::post('/tasks/{task}/request-changes', [TaskController::class, 'requestChanges'])->name('tasks.requestChanges');
+
+    // In-app notifications (the bell)
+    Route::post('/notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 
     // Payments (client pays for a task via PayPal)
     Route::post('/tasks/{task}/pay', [PaymentController::class, 'store'])->name('payments.store');
