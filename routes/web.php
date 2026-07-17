@@ -1,16 +1,26 @@
 <?php
 
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CvController;
+use App\Http\Controllers\CvPdfController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentSettingsController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TestimonialController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Public: download Taha's CV as PDF + guest contact form
+Route::get('/cv/download', [CvPdfController::class, 'download'])->name('cv.download');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('contact.store');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -23,7 +33,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Tasks
-    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::post('/tasks', [TaskController::class, 'store'])
+        ->middleware('throttle:10,60') // anti-spam: max 10 posted tasks per hour
+        ->name('tasks.store');
     Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.status');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
@@ -37,10 +49,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/{user}/messages', [ChatController::class, 'fetch'])->name('chat.fetch');
     Route::post('/chat/{user}/messages', [ChatController::class, 'store'])->name('chat.store');
 
-    // Payment tracking (freelancer only)
+    // Testimonials: clients submit, freelancer moderates
+    Route::post('/testimonials', [TestimonialController::class, 'store'])
+        ->middleware('throttle:5,60') // anti-spam: max 5 reviews per hour
+        ->name('testimonials.store');
+    Route::delete('/testimonials/{testimonial}', [TestimonialController::class, 'destroy'])->name('testimonials.destroy');
+
+    // Payment tracking + moderation (freelancer only)
     Route::middleware('freelancer')->group(function () {
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::patch('/payments/{payment}/review', [PaymentController::class, 'review'])->name('payments.review');
+
+        Route::patch('/testimonials/{testimonial}/review', [TestimonialController::class, 'review'])->name('testimonials.review');
+
+        // Where Taha receives money (PayPal + D17)
+        Route::get('/payment-settings', [PaymentSettingsController::class, 'edit'])->name('payment.settings');
+        Route::post('/payment-settings', [PaymentSettingsController::class, 'update'])->name('payment.settings.update');
+
+        Route::get('/contact-messages', [ContactController::class, 'index'])->name('contact.index');
+        Route::delete('/contact-messages/{contactMessage}', [ContactController::class, 'destroy'])->name('contact.destroy');
     });
 
     // CV management (freelancer only)

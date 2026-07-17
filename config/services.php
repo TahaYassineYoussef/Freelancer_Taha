@@ -35,6 +35,20 @@ return [
         ],
     ],
 
+    // Google sign-in (Laravel Socialite).
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+    ],
+
+    // AI moderation (Claude). Without an API key the site falls back to the
+    // built-in word/pattern list — nothing breaks, it just gets less clever.
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'moderation' => env('AI_MODERATION_ENABLED', true),
+    ],
+
     'paypal' => [
         'mode' => env('PAYPAL_MODE', 'sandbox'),
         'client_id' => env('PAYPAL_CLIENT_ID'),

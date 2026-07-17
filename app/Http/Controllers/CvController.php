@@ -28,10 +28,15 @@ class CvController extends Controller
             return $project;
         });
 
+        $testimonials = \App\Models\Testimonial::with('user:id,name')
+            ->latest()
+            ->get(['id', 'user_id', 'rating', 'body', 'role_title', 'approved', 'created_at']);
+
         return Inertia::render('Cv/Manage', [
             'profile' => $me->only(['name', 'headline', 'bio', 'location', 'phone', 'd17_number']),
             'avatarUrl' => $me->avatarUrl(),
             'd17QrUrl' => $me->d17_qr ? Storage::url($me->d17_qr) : null,
+            'testimonials' => $testimonials,
             'diplomas' => $me->diplomas,
             'experiences' => $me->experiences,
             'internships' => $me->internships,

@@ -45,6 +45,12 @@ export default function PanelLayout({ title, children }) {
                                 <NavItem href={route('payments.index')} active={current?.startsWith('payments')}>
                                     Payments
                                 </NavItem>
+                                <NavItem href={route('payment.settings')} active={current?.startsWith('payment.settings')}>
+                                    Get Paid
+                                </NavItem>
+                                <NavItem href={route('contact.index')} active={current?.startsWith('contact')}>
+                                    Inbox
+                                </NavItem>
                                 <NavItem href={route('cv.edit')} active={current?.startsWith('cv')}>
                                     Manage CV
                                 </NavItem>

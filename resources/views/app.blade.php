@@ -6,6 +6,30 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        {{-- SEO --}}
+        @php($seoDescription = 'Taha Yassine Youssef — freelance full-stack developer (Laravel, React) based in Sousse, Tunisia. Browse my projects, post a task and chat with me directly.')
+        <meta name="description" content="{{ $seoDescription }}">
+        <meta name="author" content="Taha Yassine Youssef">
+        <meta name="theme-color" content="#0b0b0d">
+        <link rel="canonical" href="{{ url()->current() }}">
+
+        {{-- Favicon --}}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="apple-touch-icon" href="/images/taha.png">
+
+        {{-- Open Graph / social preview --}}
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="Taha Yassine Youssef">
+        <meta property="og:title" content="Taha Yassine Youssef — Freelance Developer">
+        <meta property="og:description" content="{{ $seoDescription }}">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:image" content="{{ url('/images/taha.png') }}">
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Taha Yassine Youssef — Freelance Developer">
+        <meta name="twitter:description" content="{{ $seoDescription }}">
+        <meta name="twitter:image" content="{{ url('/images/taha.png') }}">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />

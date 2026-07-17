@@ -11,6 +11,7 @@ const NAV = [
     { label: 'Services', href: '#services' },
     { label: 'Projects', href: '#projects' },
     { label: 'Resume', href: '#resume' },
+    { label: 'Reviews', href: '#testimonials' },
     { label: 'Post a Task', href: '#tasks' },
     { label: 'Contact', href: '#contact' },
 ];
@@ -161,6 +162,15 @@ function Hero({ freelancer, user }) {
                             className="rounded-full border border-white/20 px-7 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:border-gold hover:text-gold"
                         >
                             My Works
+                        </a>
+                        <a
+                            href={route('cv.download')}
+                            className="flex items-center gap-2 rounded-full border border-white/20 px-7 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:border-gold hover:text-gold"
+                        >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                            </svg>
+                            Download CV
                         </a>
                     </div>
                 </div>
@@ -374,13 +384,62 @@ function Services({ services }) {
     );
 }
 
-// Extracts a YouTube video ID from common URL formats and returns its thumbnail.
-function youtubeThumbnail(url) {
+// Extracts a YouTube video ID from common URL formats.
+function youtubeId(url) {
     if (!url) return null;
     const m = url.match(
         /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
     );
-    return m ? `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg` : null;
+    return m ? m[1] : null;
+}
+
+function youtubeThumbnail(url) {
+    const id = youtubeId(url);
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+}
+
+/** Project media: uploaded video, uploaded image, or an inline YouTube player. */
+function ProjectMedia({ project }) {
+    const [playing, setPlaying] = useState(false);
+    const ytId = youtubeId(project.live_url);
+
+    if (project.video_url) {
+        return (
+            <video src={project.video_url} controls poster={project.image_url ?? undefined} className="h-full w-full object-cover" />
+        );
+    }
+
+    // Play the YouTube video right inside the card instead of leaving the site.
+    if (ytId && playing) {
+        return (
+            <iframe
+                src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&rel=0`}
+                title={project.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full border-0"
+            />
+        );
+    }
+
+    if (project.image_url) {
+        return <img src={project.image_url} alt={project.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />;
+    }
+
+    if (ytId) {
+        return (
+            <button type="button" onClick={() => setPlaying(true)} className="group/yt relative block h-full w-full" aria-label={`Play ${project.title}`}>
+                <img src={youtubeThumbnail(project.live_url)} alt={project.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                <span className="absolute inset-0 flex items-center justify-center">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/60 text-white ring-2 ring-white/70 transition group-hover/yt:scale-110 group-hover/yt:bg-red-600">
+                        <svg className="ml-1 h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                    </span>
+                </span>
+            </button>
+        );
+    }
+
+    return <div className="flex h-full items-center justify-center text-4xl text-white/10">{'</>'}</div>;
 }
 
 function Projects({ projects }) {
@@ -393,31 +452,30 @@ function Projects({ projects }) {
                         projects.map((p) => (
                             <div key={p.id} className="group overflow-hidden rounded-2xl border border-white/5 bg-ink-700 transition hover:border-gold/40">
                                 <div className="relative aspect-video w-full overflow-hidden bg-ink">
-                                    {p.video_url ? (
-                                        <video src={p.video_url} controls poster={p.image_url ?? undefined} className="h-full w-full object-cover" />
-                                    ) : p.image_url ? (
-                                        <img src={p.image_url} alt={p.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                                    ) : youtubeThumbnail(p.live_url) ? (
-                                        <a href={p.live_url} target="_blank" rel="noreferrer" className="group/yt block h-full w-full">
-                                            <img src={youtubeThumbnail(p.live_url)} alt={p.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                                            <span className="absolute inset-0 flex items-center justify-center">
-                                                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black/60 text-white ring-2 ring-white/70 transition group-hover/yt:bg-red-600">
-                                                    <svg className="ml-0.5 h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                                                </span>
-                                            </span>
-                                        </a>
-                                    ) : (
-                                        <div className="flex h-full items-center justify-center text-4xl text-white/10">{'</>'}</div>
-                                    )}
+                                    <ProjectMedia project={p} />
                                 </div>
                                 <div className="p-5">
                                     <h3 className="text-lg font-bold text-white">{p.title}</h3>
                                     {p.tech_stack && <p className="mt-1 text-xs font-medium text-gold">{p.tech_stack}</p>}
                                     {p.description && <p className="mt-2 line-clamp-3 text-sm text-gray-400">{p.description}</p>}
+                                    {youtubeId(p.live_url) && (
+                                        <a
+                                            href={p.live_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="mt-3 flex items-center gap-2 break-all text-xs text-gray-500 transition hover:text-red-400"
+                                            title="Open on YouTube"
+                                        >
+                                            <svg className="h-4 w-4 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z" />
+                                            </svg>
+                                            {p.live_url}
+                                        </a>
+                                    )}
                                     <div className="mt-4 flex gap-4 text-sm">
                                         {p.live_url && (
                                             <a href={p.live_url} target="_blank" rel="noreferrer" className="font-semibold text-gold hover:text-gold-300">
-                                                Live ↗
+                                                {youtubeId(p.live_url) ? 'Watch on YouTube ↗' : 'Live ↗'}
                                             </a>
                                         )}
                                         {p.github_url && (
@@ -606,12 +664,150 @@ function Contact({ user, freelancer }) {
                         </a>
                     )}
                 </div>
+
+                <ContactForm />
             </div>
         </section>
     );
 }
 
-export default function Home({ freelancer }) {
+function Stars({ value, onChange }) {
+    return (
+        <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                    key={n}
+                    type={onChange ? 'button' : undefined}
+                    disabled={!onChange}
+                    onClick={onChange ? () => onChange(n) : undefined}
+                    className={`text-lg ${onChange ? 'cursor-pointer' : 'cursor-default'} ${n <= value ? 'text-gold' : 'text-white/20'}`}
+                    aria-label={onChange ? `Rate ${n} of 5` : undefined}
+                >
+                    ★
+                </button>
+            ))}
+        </div>
+    );
+}
+
+function Testimonials({ testimonials, user }) {
+    const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm({
+        rating: 5,
+        body: '',
+        role_title: '',
+    });
+
+    const isClient = user && user.role === 'client';
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('testimonials.store'), { preserveScroll: true, onSuccess: () => reset() });
+    };
+
+    return (
+        <section id="testimonials" className="border-t border-white/5 py-20">
+            <div className="mx-auto max-w-6xl px-6">
+                <SectionTitle ghost="Reviews">What Clients Say</SectionTitle>
+
+                {testimonials?.length ? (
+                    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                        {testimonials.map((t) => (
+                            <div key={t.id} className="rounded-2xl border border-white/5 bg-ink-700 p-6">
+                                <Stars value={t.rating} />
+                                <p className="mt-3 text-sm leading-relaxed text-gray-300">“{t.body}”</p>
+                                <div className="mt-4 flex items-center gap-3 border-t border-white/5 pt-4">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gold text-sm font-bold text-ink">
+                                        {(t.user?.name ?? '?').charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-white">{t.user?.name}</p>
+                                        {t.role_title && <p className="text-xs text-gray-500">{t.role_title}</p>}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-gray-500">No reviews yet — be the first to leave one.</p>
+                )}
+
+                {isClient && (
+                    <form onSubmit={submit} className="mt-10 max-w-2xl space-y-4 rounded-2xl border border-white/5 bg-ink-700 p-6">
+                        <h3 className="font-bold text-white">Leave a review</h3>
+                        {wasSuccessful && (
+                            <p className="rounded-lg bg-green-500/10 px-4 py-2 text-sm text-green-400">
+                                Thanks! Your review will appear once Taha approves it.
+                            </p>
+                        )}
+                        <div>
+                            <span className="mb-1 block text-sm text-gray-400">Your rating</span>
+                            <Stars value={data.rating} onChange={(n) => setData('rating', n)} />
+                            {errors.rating && <span className="mt-1 block text-sm text-red-400">{errors.rating}</span>}
+                        </div>
+                        <Field label="Your role (optional)" error={errors.role_title}>
+                            <input type="text" value={data.role_title} onChange={(e) => setData('role_title', e.target.value)} className={inputCls} placeholder="e.g. CEO, Acme Inc." />
+                        </Field>
+                        <Field label="Your review" error={errors.body}>
+                            <textarea rows={3} value={data.body} onChange={(e) => setData('body', e.target.value)} className={inputCls} placeholder="How was working with Taha?" />
+                        </Field>
+                        <button type="submit" disabled={processing} className="rounded-full bg-gold px-8 py-2.5 text-sm font-bold uppercase text-ink transition hover:bg-gold-300 disabled:opacity-60">
+                            {processing ? 'Sending…' : 'Submit review'}
+                        </button>
+                    </form>
+                )}
+            </div>
+        </section>
+    );
+}
+
+function ContactForm() {
+    const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm({
+        name: '',
+        email: '',
+        subject: '',
+        body: '',
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('contact.store'), { preserveScroll: true, onSuccess: () => reset() });
+    };
+
+    return (
+        <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-white/5 bg-ink-700 p-6 text-left">
+            <h3 className="mb-1 font-bold text-white">Send a message</h3>
+            <p className="mb-5 text-sm text-gray-400">No account needed — Taha will reply to your email.</p>
+
+            {wasSuccessful && (
+                <p className="mb-4 rounded-lg bg-green-500/10 px-4 py-2 text-sm text-green-400">
+                    Thanks for reaching out! Taha will get back to you soon.
+                </p>
+            )}
+
+            <form onSubmit={submit} className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Your name" error={errors.name}>
+                        <input type="text" value={data.name} onChange={(e) => setData('name', e.target.value)} className={inputCls} />
+                    </Field>
+                    <Field label="Your email" error={errors.email}>
+                        <input type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} className={inputCls} />
+                    </Field>
+                </div>
+                <Field label="Subject" error={errors.subject}>
+                    <input type="text" value={data.subject} onChange={(e) => setData('subject', e.target.value)} className={inputCls} placeholder="What is it about?" />
+                </Field>
+                <Field label="Message" error={errors.body}>
+                    <textarea rows={4} value={data.body} onChange={(e) => setData('body', e.target.value)} className={inputCls} />
+                </Field>
+                <button type="submit" disabled={processing} className="rounded-full bg-gold px-8 py-2.5 text-sm font-bold uppercase text-ink transition hover:bg-gold-300 disabled:opacity-60">
+                    {processing ? 'Sending…' : 'Send message'}
+                </button>
+            </form>
+        </div>
+    );
+}
+
+export default function Home({ freelancer, testimonials }) {
     const { auth, flash } = usePage().props;
     const user = auth?.user;
     const [toast, setToast] = useState(flash?.success);
@@ -644,6 +840,7 @@ export default function Home({ freelancer }) {
                 <Resume diplomas={freelancer?.diplomas} />
                 <Experience experiences={freelancer?.experiences} />
                 <Internships internships={freelancer?.internships} />
+                <Testimonials testimonials={testimonials} user={user} />
                 <TaskSection user={user} />
                 <Contact user={user} freelancer={freelancer} />
             </main>

@@ -33,8 +33,14 @@ class HomeController extends Controller
             });
         }
 
+        $testimonials = \App\Models\Testimonial::approved()
+            ->with('user:id,name')
+            ->latest()
+            ->get(['id', 'user_id', 'rating', 'body', 'role_title', 'created_at']);
+
         return Inertia::render('Home', [
             'freelancer' => $freelancer,
+            'testimonials' => $testimonials,
         ]);
     }
 }

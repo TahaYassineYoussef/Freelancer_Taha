@@ -12,7 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'role', 'headline', 'bio', 'location', 'phone', 'avatar', 'd17_number', 'd17_qr'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'role', 'headline', 'bio', 'location', 'phone', 'avatar', 'd17_number', 'd17_qr', 'paypal_email', 'paypal_client_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -79,6 +79,11 @@ class User extends Authenticatable
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function testimonials(): HasMany
+    {
+        return $this->hasMany(Testimonial::class);
     }
 
     public function sentMessages(): HasMany

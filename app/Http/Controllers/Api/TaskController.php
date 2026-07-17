@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\User;
 use App\Notifications\TaskPosted;
+use App\Rules\CleanText;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -27,10 +28,10 @@ class TaskController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'category' => ['nullable', 'string', 'max:255'],
-            'budget' => ['nullable', 'numeric', 'min:0'],
+            'title' => ['required', 'string', 'max:255', new CleanText($ctx = 'a project request a client posted for a freelance developer')],
+            'description' => ['required', 'string', 'min:15', new CleanText($ctx)],
+            'category' => ['nullable', 'string', 'max:255', new CleanText($ctx)],
+            'budget' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
             'deadline' => ['nullable', 'date', 'after_or_equal:today'],
         ]);
 

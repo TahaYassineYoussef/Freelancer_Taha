@@ -140,13 +140,71 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
     );
 }
 
-export default function Manage({ profile, avatarUrl, d17QrUrl, diplomas, experiences, internships, projects, skills, services }) {
+function TestimonialsModerator({ testimonials }) {
+    const setApproved = (t, approved) => {
+        router.patch(route('testimonials.review', t.id), { approved }, { preserveScroll: true });
+    };
+
+    const remove = (t) => {
+        if (confirm('Delete this review?')) {
+            router.delete(route('testimonials.destroy', t.id), { preserveScroll: true });
+        }
+    };
+
+    const pending = testimonials.filter((t) => !t.approved).length;
+
+    return (
+        <section className="rounded-2xl border border-white/5 bg-ink-700 p-6">
+            <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-bold text-white">Client Reviews</h2>
+                {pending > 0 && (
+                    <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
+                        {pending} awaiting approval
+                    </span>
+                )}
+            </div>
+
+            <div className="space-y-3">
+                {testimonials.length === 0 && <p className="text-sm text-gray-500">No reviews yet.</p>}
+                {testimonials.map((t) => (
+                    <div key={t.id} className="rounded-xl border border-white/5 bg-ink-800 p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-white">{t.user?.name}</span>
+                                    <span className="text-gold">{'★'.repeat(t.rating)}<span className="text-white/20">{'★'.repeat(5 - t.rating)}</span></span>
+                                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${t.approved ? 'bg-green-500/15 text-green-300' : 'bg-gold/15 text-gold'}`}>
+                                        {t.approved ? 'Published' : 'Pending'}
+                                    </span>
+                                </div>
+                                {t.role_title && <p className="text-xs text-gray-500">{t.role_title}</p>}
+                                <p className="mt-2 text-sm text-gray-300">“{t.body}”</p>
+                            </div>
+                            <div className="flex flex-shrink-0 gap-3 text-sm">
+                                {t.approved ? (
+                                    <button onClick={() => setApproved(t, false)} className="text-gray-400 hover:text-white">Hide</button>
+                                ) : (
+                                    <button onClick={() => setApproved(t, true)} className="font-semibold text-green-400 hover:text-green-300">Approve</button>
+                                )}
+                                <button onClick={() => remove(t)} className="text-red-400 hover:text-red-300">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+}
+
+export default function Manage({ profile, avatarUrl, d17QrUrl, testimonials, diplomas, experiences, internships, projects, skills, services }) {
     return (
         <PanelLayout title="Manage CV">
             <Head title="Manage CV" />
 
             <div className="space-y-8">
                 <ProfileForm profile={profile} avatarUrl={avatarUrl} d17QrUrl={d17QrUrl} />
+
+                <TestimonialsModerator testimonials={testimonials} />
 
                 <ProjectsManager projects={projects} />
 

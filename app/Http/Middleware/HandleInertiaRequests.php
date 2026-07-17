@@ -44,8 +44,12 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
-            'paypal' => [
-                'clientId' => config('services.paypal.client_id'),
+            // Only show the "Continue with Google" button once OAuth is set up.
+            'googleEnabled' => (bool) config('services.google.client_id'),
+            'paypal' => fn () => [
+                // Prefer what the freelancer saved in Payment Settings; fall back to .env.
+                'clientId' => $this->freelancer()?->paypal_client_id
+                    ?: config('services.paypal.client_id'),
                 'currency' => config('services.paypal.currency', 'USD'),
             ],
             'd17' => fn () => $this->d17Details(),
@@ -57,11 +61,19 @@ class HandleInertiaRequests extends Middleware
      */
     private function d17Details(): array
     {
-        $freelancer = User::where('role', 'freelancer')->first(['d17_number', 'd17_qr']);
+        $freelancer = $this->freelancer();
 
         return [
             'number' => $freelancer?->d17_number,
             'qr' => $freelancer?->d17_qr ? Storage::url($freelancer->d17_qr) : null,
         ];
+    }
+
+    private ?User $freelancer = null;
+
+    private function freelancer(): ?User
+    {
+        return $this->freelancer ??= User::where('role', 'freelancer')
+            ->first(['id', 'd17_number', 'd17_qr', 'paypal_client_id']);
     }
 }
