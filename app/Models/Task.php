@@ -14,7 +14,7 @@ class Task extends Model
 
     protected $fillable = [
         'user_id', 'title', 'description', 'category', 'budget', 'deadline', 'status',
-        'deliverable_file', 'deliverable_note', 'deliverable_link', 'delivered_at',
+        'deliverable_file', 'deliverable_note', 'deliverable_link', 'delivered_at', 'revision_note',
     ];
 
     protected $casts = [

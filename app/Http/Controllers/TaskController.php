@@ -104,6 +104,7 @@ class TaskController extends Controller
             ...$data,
             'status' => 'delivered',
             'delivered_at' => now(),
+            'revision_note' => null, // a fresh delivery clears the previous change request
         ]);
 
         $this->notify($task->user, 'task', 'Work delivered',
@@ -140,11 +141,19 @@ class TaskController extends Controller
             'note' => ['nullable', 'string', 'max:2000', new CleanText('feedback a client sent on a delivery')],
         ]);
 
-        $task->update(['status' => 'in_progress']);
+        $task->update([
+            'status' => 'in_progress',
+            'revision_note' => $data['note'] ?: null,
+        ]);
 
         $note = ! empty($data['note']) ? ' Note: '.$data['note'] : '';
-        $this->notify($this->freelancer(), 'task', 'Changes requested',
-            "{$task->user->name} requested changes on “{$task->title}”.{$note}", '🔁');
+        $this->freelancer()?->notify(new ActivityNotification(
+            'revision',
+            'Changes requested',
+            "{$task->user->name} requested changes on “{$task->title}”.{$note}",
+            route('revisions.index'),
+            '🔁',
+        ));
 
         return back()->with('success', 'Change request sent.');
     }

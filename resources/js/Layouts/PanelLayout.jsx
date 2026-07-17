@@ -12,6 +12,7 @@ const ICONS = {
     mail: 'M3 7l9 6 9-6M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z',
     shield: 'M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z',
     doc: 'M7 3h7l4 4v14H7zM14 3v4h4',
+    revise: 'M4 4v6h6M20 20v-6h-6M20 8a8 8 0 00-14.9-2M4 16a8 8 0 0014.9 2',
 };
 
 function NavIcon({ d }) {
@@ -49,6 +50,7 @@ export default function PanelLayout({ title, children }) {
     const { auth } = usePage().props;
     const user = auth?.user;
     const unread = auth?.unreadMessages ?? 0;
+    const pendingRevisions = auth?.pendingRevisions ?? 0;
     const current = route().current();
     const isFreelancer = user?.role === 'freelancer';
     const [open, setOpen] = useState(false);
@@ -64,6 +66,7 @@ export default function PanelLayout({ title, children }) {
                 <>
                     <NavItem href={route('payments.index')} icon={ICONS.cash} active={current?.startsWith('payments')} onClick={close}>Payments</NavItem>
                     <NavItem href={route('payment.settings')} icon={ICONS.wallet} active={current?.startsWith('payment.settings')} onClick={close}>Get Paid</NavItem>
+                    <NavItem href={route('revisions.index')} icon={ICONS.revise} active={current?.startsWith('revisions')} badge={pendingRevisions} onClick={close}>Revisions</NavItem>
                     <NavItem href={route('contact.index')} icon={ICONS.mail} active={current?.startsWith('contact')} onClick={close}>Inbox</NavItem>
                     <NavItem href={route('moderation.index')} icon={ICONS.shield} active={current?.startsWith('moderation')} onClick={close}>Blocked</NavItem>
                     <NavItem href={route('cv.edit')} icon={ICONS.doc} active={current?.startsWith('cv')} onClick={close}>Manage CV</NavItem>

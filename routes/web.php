@@ -10,6 +10,7 @@ use App\Http\Controllers\ModerationLogController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentSettingsController;
+use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
@@ -81,6 +82,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/contact-messages', [ContactController::class, 'index'])->name('contact.index');
         Route::delete('/contact-messages/{contactMessage}', [ContactController::class, 'destroy'])->name('contact.destroy');
+
+        // Pending client change requests
+        Route::get('/revisions', [RevisionController::class, 'index'])->name('revisions.index');
 
         // Blocked submissions (scam / profanity caught by moderation)
         Route::get('/blocked', [ModerationLogController::class, 'index'])->name('moderation.index');

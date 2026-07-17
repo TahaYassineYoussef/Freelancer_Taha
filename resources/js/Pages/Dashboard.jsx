@@ -156,15 +156,57 @@ function LatestClients({ clients }) {
     );
 }
 
+function RequestChangesModal({ task, onClose }) {
+    const [note, setNote] = useState('');
+    const [busy, setBusy] = useState(false);
+
+    const submit = () => {
+        setBusy(true);
+        router.post(route('tasks.requestChanges', task.id), { note }, {
+            preserveScroll: true,
+            onSuccess: onClose,
+            onFinish: () => setBusy(false),
+        });
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
+            <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-ink-800 p-6" onClick={(e) => e.stopPropagation()}>
+                <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-white">Request changes</h3>
+                    <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
+                </div>
+                <p className="mb-3 text-sm text-gray-400">
+                    Tell Taha what to adjust on <span className="text-gold">“{task.title}”</span>. He'll get it back to “in progress”.
+                </p>
+                <textarea
+                    autoFocus
+                    rows={5}
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Describe the changes you'd like… (e.g. the header color, missing contact form, a bug on mobile)"
+                    className="w-full rounded-lg border border-white/10 bg-ink px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-gold focus:ring-gold"
+                />
+                <div className="mt-4 flex justify-end gap-3">
+                    <button onClick={onClose} className="rounded-full border border-white/15 px-5 py-2 text-sm text-gray-300 hover:text-white">Cancel</button>
+                    <button onClick={submit} disabled={busy} className="rounded-full bg-gold px-6 py-2 text-sm font-bold text-ink hover:bg-gold-300 disabled:opacity-60">
+                        {busy ? 'Sending…' : 'Send request'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function Dashboard({ role, tasks, stats, kpis, chart, latestClients }) {
     const { paypal, d17 } = usePage().props;
     const isFreelancer = role === 'freelancer';
     const [delivering, setDelivering] = useState(null);
+    const [changeTask, setChangeTask] = useState(null);
     const [q, setQ] = useState('');
 
     const act = (name, task, extra = {}) => router.post(route(name, task.id), extra, { preserveScroll: true });
     const remove = (task) => { if (confirm('Delete this task?')) router.delete(route('tasks.destroy', task.id), { preserveScroll: true }); };
-    const requestChanges = (task) => router.post(route('tasks.requestChanges', task.id), { note: prompt('What needs changing? (optional)') ?? '' }, { preserveScroll: true });
 
     const visible = tasks.filter((t) =>
         !q || t.title.toLowerCase().includes(q.toLowerCase()) || (t.user?.name ?? '').toLowerCase().includes(q.toLowerCase())
@@ -250,7 +292,29 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
                                         <span>⏰ Deadline: {fmtDate(task.deadline)}</span>
                                     </div>
 
+                                    {/* Client's change request — highlighted so Taha can't miss what to fix */}
+                                    {task.revision_note && task.status === 'in_progress' && (
+                                        <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-amber-300">🔁 Changes requested by the client</p>
+                                            <p className="mt-2 text-sm text-gray-200">{task.revision_note}</p>
+                                        </div>
+                                    )}
+
                                     <DeliveredBox task={task} />
+
+                                    {/* Prominent deliver CTA in the card body */}
+                                    {isFreelancer && task.status === 'in_progress' && delivering !== task.id && (
+                                        <button
+                                            onClick={() => setDelivering(task.id)}
+                                            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-4 py-3 text-sm font-bold text-ink transition hover:bg-gold-300"
+                                        >
+                                            📦 Deliver work to client
+                                        </button>
+                                    )}
+                                    {isFreelancer && task.status === 'open' && (
+                                        <p className="mt-3 text-xs text-gray-500">Accept this task to unlock delivery.</p>
+                                    )}
+
                                     {isFreelancer && delivering === task.id && <DeliverForm task={task} onDone={() => setDelivering(null)} />}
                                 </div>
 
@@ -272,7 +336,7 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
                                                 </>
                                             )}
                                             {task.status === 'in_progress' && (
-                                                <button onClick={() => setDelivering(delivering === task.id ? null : task.id)} className="rounded-full bg-gold px-4 py-1.5 text-sm font-bold text-ink hover:bg-gold-300">📦 Deliver work</button>
+                                                <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">In progress</span>
                                             )}
                                             {task.status === 'delivered' && (
                                                 <>
@@ -286,7 +350,7 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
                                             {task.status === 'delivered' && (
                                                 <>
                                                     <button onClick={() => act('tasks.approve', task)} className="rounded-full bg-green-500/15 px-4 py-1.5 text-sm font-semibold text-green-300 hover:bg-green-500/25">✓ Approve</button>
-                                                    <button onClick={() => requestChanges(task)} className="rounded-full bg-white/5 px-4 py-1.5 text-sm font-semibold text-gray-300 hover:bg-white/10">🔁 Request changes</button>
+                                                    <button onClick={() => setChangeTask(task)} className="rounded-full bg-white/5 px-4 py-1.5 text-sm font-semibold text-gray-300 hover:bg-white/10">🔁 Request changes</button>
                                                 </>
                                             )}
                                             {!task.is_paid && !task.pending_payment && task.budget && (
@@ -305,6 +369,8 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
                     ))}
                 </div>
             )}
+
+            {changeTask && <RequestChangesModal task={changeTask} onClose={() => setChangeTask(null)} />}
         </PanelLayout>
     );
 }

@@ -40,6 +40,9 @@ class HandleInertiaRequests extends Middleware
                     ? Message::where('receiver_id', $request->user()->id)->whereNull('read_at')->count()
                     : 0,
                 'notifications' => fn () => $this->notifications($request),
+                'pendingRevisions' => fn () => $request->user()?->isFreelancer()
+                    ? \App\Models\Task::whereNotNull('revision_note')->where('status', 'in_progress')->count()
+                    : 0,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
