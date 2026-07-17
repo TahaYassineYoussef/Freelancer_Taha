@@ -3,7 +3,7 @@ import PayPalButton from '@/Components/PayPalButton';
 import D17Button from '@/Components/D17Button';
 import LineChart from '@/Components/LineChart';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const STATUS_STYLES = {
     open: 'bg-blue-500/15 text-blue-300',
@@ -199,11 +199,26 @@ function RequestChangesModal({ task, onClose }) {
 }
 
 export default function Dashboard({ role, tasks, stats, kpis, chart, latestClients }) {
-    const { paypal, d17 } = usePage().props;
+    const page = usePage();
+    const { paypal, d17 } = page.props;
     const isFreelancer = role === 'freelancer';
     const [delivering, setDelivering] = useState(null);
     const [changeTask, setChangeTask] = useState(null);
     const [q, setQ] = useState('');
+    const [highlight, setHighlight] = useState(null);
+
+    // When a notification links here with ?task=ID, scroll to and flash that card.
+    useEffect(() => {
+        const id = new URLSearchParams(page.url.split('?')[1] || '').get('task');
+        if (!id) return;
+        const el = document.getElementById(`task-${id}`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setHighlight(Number(id));
+            const t = setTimeout(() => setHighlight(null), 2600);
+            return () => clearTimeout(t);
+        }
+    }, [page.url]);
 
     const act = (name, task, extra = {}) => router.post(route(name, task.id), extra, { preserveScroll: true });
     const remove = (task) => { if (confirm('Delete this task?')) router.delete(route('tasks.destroy', task.id), { preserveScroll: true }); };
@@ -274,7 +289,13 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
             ) : (
                 <div className="space-y-4">
                     {visible.map((task) => (
-                        <div key={task.id} className="rounded-2xl border border-white/5 bg-ink-700 p-6">
+                        <div
+                            key={task.id}
+                            id={`task-${task.id}`}
+                            className={`rounded-2xl border bg-ink-700 p-6 transition ${
+                                highlight === task.id ? 'border-gold ring-2 ring-gold/60' : 'border-white/5'
+                            }`}
+                        >
                             <div className="flex flex-wrap items-start justify-between gap-4">
                                 <div className="min-w-0 flex-1">
                                     <div className="flex flex-wrap items-center gap-3">

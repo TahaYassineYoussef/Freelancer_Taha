@@ -36,7 +36,7 @@ class TaskController extends Controller
             'task',
             'New task posted',
             "{$request->user()->name} posted “{$task->title}”.",
-            route('dashboard'),
+            route('dashboard', ['task' => $task->id]),
             '📋',
         ));
 
@@ -53,7 +53,7 @@ class TaskController extends Controller
 
         $task->update(['status' => 'in_progress']);
 
-        $this->notify($task->user, 'task', 'Task accepted',
+        $this->notify($task->user, $task, 'task', 'Task accepted',
             "Taha accepted your task “{$task->title}” and started working on it.", '✅');
 
         return back()->with('success', 'Task accepted — it is now in progress.');
@@ -69,7 +69,7 @@ class TaskController extends Controller
 
         $task->update(['status' => 'declined']);
 
-        $this->notify($task->user, 'task', 'Task declined',
+        $this->notify($task->user, $task, 'task', 'Task declined',
             "Taha is unable to take on “{$task->title}” right now.", '🚫');
 
         return back()->with('success', 'Task declined.');
@@ -107,7 +107,7 @@ class TaskController extends Controller
             'revision_note' => null, // a fresh delivery clears the previous change request
         ]);
 
-        $this->notify($task->user, 'task', 'Work delivered',
+        $this->notify($task->user, $task, 'task', 'Work delivered',
             "Taha delivered “{$task->title}”. Review and approve it.", '📦');
 
         return back()->with('success', 'Delivery sent to the client.');
@@ -123,7 +123,7 @@ class TaskController extends Controller
 
         $task->update(['status' => 'completed']);
 
-        $this->notify($this->freelancer(), 'task', 'Delivery approved',
+        $this->notify($this->freelancer(), $task, 'task', 'Delivery approved',
             "{$task->user->name} approved “{$task->title}”. 🎉", '🎉');
 
         return back()->with('success', 'Delivery approved. Thank you!');
@@ -202,8 +202,10 @@ class TaskController extends Controller
         abort_unless(Auth::user()->isFreelancer(), 403);
     }
 
-    private function notify(?User $user, string $type, string $title, string $message, string $icon): void
+    private function notify(?User $user, Task $task, string $type, string $title, string $message, string $icon): void
     {
-        $user?->notify(new ActivityNotification($type, $title, $message, route('dashboard'), $icon));
+        // Deep-link to the exact task so the dashboard scrolls to and highlights it.
+        $url = route('dashboard', ['task' => $task->id]);
+        $user?->notify(new ActivityNotification($type, $title, $message, $url, $icon));
     }
 }
