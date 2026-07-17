@@ -43,6 +43,9 @@ class HandleInertiaRequests extends Middleware
                 'pendingRevisions' => fn () => $request->user()?->isFreelancer()
                     ? \App\Models\Task::whereNotNull('revision_note')->where('status', 'in_progress')->count()
                     : 0,
+                'pendingDeliveries' => fn () => ($request->user() && ! $request->user()->isFreelancer())
+                    ? $request->user()->tasks()->where('status', 'delivered')->count()
+                    : 0,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

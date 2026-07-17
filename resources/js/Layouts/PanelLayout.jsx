@@ -13,6 +13,7 @@ const ICONS = {
     shield: 'M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z',
     doc: 'M7 3h7l4 4v14H7zM14 3v4h4',
     revise: 'M4 4v6h6M20 20v-6h-6M20 8a8 8 0 00-14.9-2M4 16a8 8 0 0014.9 2',
+    box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
 };
 
 function NavIcon({ d }) {
@@ -51,6 +52,7 @@ export default function PanelLayout({ title, children }) {
     const user = auth?.user;
     const unread = auth?.unreadMessages ?? 0;
     const pendingRevisions = auth?.pendingRevisions ?? 0;
+    const pendingDeliveries = auth?.pendingDeliveries ?? 0;
     const current = route().current();
     const isFreelancer = user?.role === 'freelancer';
     const [open, setOpen] = useState(false);
@@ -62,6 +64,9 @@ export default function PanelLayout({ title, children }) {
             <NavItem href={route('home')} icon={ICONS.home} onClick={close}>Home</NavItem>
             <NavItem href={route('dashboard')} icon={ICONS.grid} active={current === 'dashboard'} onClick={close}>Dashboard</NavItem>
             <NavItem href={route('chat.index')} icon={ICONS.chat} active={current?.startsWith('chat')} badge={unread} onClick={close}>Chat</NavItem>
+            {!isFreelancer && (
+                <NavItem href={route('deliveries.index')} icon={ICONS.box} active={current?.startsWith('deliveries')} badge={pendingDeliveries} onClick={close}>Deliveries</NavItem>
+            )}
             {isFreelancer && (
                 <>
                     <NavItem href={route('payments.index')} icon={ICONS.cash} active={current?.startsWith('payments')} onClick={close}>Payments</NavItem>

@@ -29,15 +29,16 @@ export default function NotificationBell() {
 
     const openItem = (n) => {
         setOpen(false);
+
+        // Mark read in the background (plain XHR so it doesn't cancel the visit).
         if (!n.read) {
-            router.post(route('notifications.read', n.id), {}, {
-                preserveScroll: true,
-                preserveState: true,
-                onFinish: () => router.visit(n.url),
-            });
-        } else {
-            router.visit(n.url);
+            window.axios.post(route('notifications.read', n.id)).catch(() => {});
         }
+
+        // Always navigate — even on repeated clicks of the same notification —
+        // by adding a fresh nonce so the destination re-runs its scroll/highlight.
+        const sep = n.url.includes('?') ? '&' : '?';
+        router.visit(`${n.url}${sep}_=${Date.now()}`);
     };
 
     const markAll = () => {

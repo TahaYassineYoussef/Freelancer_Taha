@@ -107,8 +107,13 @@ class TaskController extends Controller
             'revision_note' => null, // a fresh delivery clears the previous change request
         ]);
 
-        $this->notify($task->user, $task, 'task', 'Work delivered',
-            "Taha delivered “{$task->title}”. Review and approve it.", '📦');
+        $task->user?->notify(new ActivityNotification(
+            'task',
+            'Work delivered',
+            "Taha delivered “{$task->title}”. Review and approve it.",
+            route('deliveries.index', ['task' => $task->id]),
+            '📦',
+        ));
 
         return back()->with('success', 'Delivery sent to the client.');
     }

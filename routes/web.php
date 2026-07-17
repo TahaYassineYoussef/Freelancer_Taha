@@ -5,6 +5,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CvController;
 use App\Http\Controllers\CvPdfController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ModerationLogController;
 use App\Http\Controllers\NotificationController;
@@ -57,6 +58,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{task}/pay', [PaymentController::class, 'store'])->name('payments.store');
     // Payments (client declares a D17 transfer for a task)
     Route::post('/tasks/{task}/d17', [PaymentController::class, 'storeD17'])->name('payments.d17');
+
+    // Client's deliveries (work delivered to them, awaiting approval)
+    Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
