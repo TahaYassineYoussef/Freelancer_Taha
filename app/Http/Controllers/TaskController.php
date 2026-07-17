@@ -156,7 +156,7 @@ class TaskController extends Controller
             'revision',
             'Changes requested',
             "{$task->user->name} requested changes on “{$task->title}”.{$note}",
-            route('revisions.index'),
+            route('revisions.index', ['task' => $task->id]),
             '🔁',
         ));
 
