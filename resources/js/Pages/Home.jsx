@@ -645,9 +645,37 @@ function Contact({ user, freelancer }) {
                 <SectionTitle ghost="Talk">
                     <span className="block text-center">{t("Let's Talk")}</span>
                 </SectionTitle>
-                <p className="mx-auto mb-8 max-w-xl text-gray-300">
+                <p className="mx-auto mb-6 max-w-xl text-gray-300">
                     {t('Connect with Taha directly through live chat to discuss your project.')}
                 </p>
+
+                <div className="mx-auto mb-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-gray-300">
+                    {freelancer?.phone && (
+                        <a href={`tel:${freelancer.phone}`} className="flex items-center gap-2 transition hover:text-gold">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gold/15 text-gold">
+                                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.36 11.36 0 003.57.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z" /></svg>
+                            </span>
+                            {freelancer.phone}
+                        </a>
+                    )}
+                    {freelancer?.email && (
+                        <a href={`mailto:${freelancer.email}`} className="flex items-center gap-2 transition hover:text-gold">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gold/15 text-gold">
+                                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg>
+                            </span>
+                            {freelancer.email}
+                        </a>
+                    )}
+                    {freelancer?.location && (
+                        <span className="flex items-center gap-2">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gold/15 text-gold">
+                                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z" /></svg>
+                            </span>
+                            {freelancer.location}
+                        </span>
+                    )}
+                </div>
+
                 <div className="flex flex-wrap justify-center gap-4">
                     {user ? (
                         <Link

@@ -3,19 +3,29 @@
  * Looks and behaves like a Messenger call: remote video fills the screen, your
  * own camera sits in a small corner tile, with mute / camera / hang-up controls.
  */
-function RoundButton({ onClick, title, active, danger, children }) {
-    const base = 'flex h-14 w-14 items-center justify-center rounded-full text-white transition';
-    const cls = danger
-        ? 'bg-red-500 hover:bg-red-600'
-        : active
-            ? 'bg-white/90 text-ink hover:bg-white'
-            : 'bg-white/15 hover:bg-white/25';
+function RoundButton({ onClick, title, variant = 'neutral', big, children }) {
+    const size = big ? 'h-16 w-16' : 'h-14 w-14';
+    const styles = {
+        neutral: 'bg-white/15 text-white hover:bg-white/25',
+        success: 'bg-green-500 text-white hover:bg-green-600',
+        danger: 'bg-red-500 text-white hover:bg-red-600',
+    };
     return (
-        <button onClick={onClick} title={title} className={`${base} ${cls}`}>
+        <button onClick={onClick} title={title} className={`flex ${size} items-center justify-center rounded-full shadow-lg transition ${styles[variant]}`}>
             {children}
         </button>
     );
 }
+
+// Filled icons matching the reference call icon set.
+const Icons = {
+    phone: <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.36 11.36 0 003.57.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z" /></svg>,
+    hangup: <svg className="h-6 w-6 rotate-[135deg]" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.36 11.36 0 003.57.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z" /></svg>,
+    mic: <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14a3 3 0 003-3V5a3 3 0 00-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 006 6.92V21h2v-3.08A7 7 0 0019 11h-2z" /></svg>,
+    micOff: <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M15 11V5a3 3 0 00-5.94-.6L15 10.4V11zM4.27 3L3 4.27l6 6V11a3 3 0 004.72 2.45l1.4 1.4A4.9 4.9 0 0112 15a5 5 0 01-5-5H5a7 7 0 006 6.92V21h2v-3.08a6.9 6.9 0 002.28-.72L19.73 21 21 19.73 4.27 3z" /></svg>,
+    video: <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1v-3.5l4 4v-11l-4 4z" /></svg>,
+    videoOff: <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6.5l-4 4V7a1 1 0 00-1-1H9.83l11 11 .17.17V6.5zM3.27 2L2 3.27l2 2V17a1 1 0 001 1h11.73l3 3L21 19.73 3.27 2z" /></svg>,
+};
 
 export default function CallOverlay({ call, partnerName }) {
     const { state, callType, muted, camOff, durationLabel, localRef, remoteRef } = call;
@@ -76,36 +86,22 @@ export default function CallOverlay({ call, partnerName }) {
             <div className="flex items-center justify-center gap-5 bg-black/40 py-8">
                 {state === 'incoming' ? (
                     <>
-                        <RoundButton onClick={call.decline} title="Decline" danger>
-                            <svg className="h-6 w-6 rotate-[135deg]" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.36 11.36 0 003.57.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z" /></svg>
-                        </RoundButton>
-                        <RoundButton onClick={call.accept} title="Accept">
-                            <svg className="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.36 11.36 0 003.57.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z" /></svg>
-                        </RoundButton>
+                        <RoundButton onClick={call.decline} title="Decline" variant="danger" big>{Icons.hangup}</RoundButton>
+                        <RoundButton onClick={call.accept} title="Accept" variant="success" big>{Icons.phone}</RoundButton>
                     </>
                 ) : (
                     <>
-                        <RoundButton onClick={call.toggleMute} title={muted ? 'Unmute' : 'Mute'} active={muted}>
-                            {muted ? (
-                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 3l18 18M9 9v3a3 3 0 004.24 2.73M15 11V5a3 3 0 00-5.94-.6M17 16.95A7 7 0 015 12M12 19v3" /></svg>
-                            ) : (
-                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3zM19 12a7 7 0 01-14 0M12 19v3" /></svg>
-                            )}
+                        <RoundButton onClick={call.toggleMute} title={muted ? 'Unmute' : 'Mute'} variant={muted ? 'danger' : 'neutral'}>
+                            {muted ? Icons.micOff : Icons.mic}
                         </RoundButton>
 
                         {isVideo && (
-                            <RoundButton onClick={call.toggleCam} title={camOff ? 'Turn camera on' : 'Turn camera off'} active={camOff}>
-                                {camOff ? (
-                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 3l18 18M15 10.5V7a1 1 0 00-1-1H8m-3 .5A1 1 0 004 7v10a1 1 0 001 1h9a1 1 0 001-1v-2l4 3V6l-4 3" /></svg>
-                                ) : (
-                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 10l4-3v10l-4-3v2a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h9a1 1 0 011 1z" /></svg>
-                                )}
+                            <RoundButton onClick={call.toggleCam} title={camOff ? 'Turn camera on' : 'Turn camera off'} variant={camOff ? 'danger' : 'neutral'}>
+                                {camOff ? Icons.videoOff : Icons.video}
                             </RoundButton>
                         )}
 
-                        <RoundButton onClick={call.hangup} title="Hang up" danger>
-                            <svg className="h-6 w-6 rotate-[135deg]" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.36 11.36 0 003.57.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z" /></svg>
-                        </RoundButton>
+                        <RoundButton onClick={call.hangup} title="Hang up" variant="danger" big>{Icons.hangup}</RoundButton>
                     </>
                 )}
             </div>
