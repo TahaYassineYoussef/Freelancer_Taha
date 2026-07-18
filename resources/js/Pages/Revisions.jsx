@@ -1,4 +1,5 @@
 import PanelLayout from '@/Layouts/PanelLayout';
+import DeliverIcon from '@/Components/DeliverIcon';
 import useNotifFlash from '@/useNotifFlash';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -119,7 +120,7 @@ export default function Revisions({ tasks }) {
                                     {open === task.id ? (
                                         <button onClick={() => setOpen(null)} className="text-sm text-gray-400 hover:text-white">Cancel</button>
                                     ) : (
-                                        <button onClick={() => setOpen(task.id)} className="rounded-full bg-gold px-4 py-2 text-sm font-bold text-ink hover:bg-gold-300">📦 Re-deliver</button>
+                                        <button onClick={() => setOpen(task.id)} className="inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-sm font-bold text-ink hover:bg-gold-300"><DeliverIcon /> Re-deliver</button>
                                     )}
                                     <Link href={route('chat.index', { with: task.client?.id })} className="rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white hover:border-gold hover:text-gold">
                                         Chat client

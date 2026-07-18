@@ -4,6 +4,7 @@ import D17Button from '@/Components/D17Button';
 import DeliverForm from '@/Components/DeliverForm';
 import LineChart from '@/Components/LineChart';
 import RequestChangesModal from '@/Components/RequestChangesModal';
+import DeliverIcon from '@/Components/DeliverIcon';
 import useNotifFlash from '@/useNotifFlash';
 import { useT } from '@/i18n';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -229,7 +230,7 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
                                             onClick={() => setDelivering(task.id)}
                                             className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-4 py-3 text-sm font-bold text-ink transition hover:bg-gold-300"
                                         >
-                                            📦 Deliver work to client
+                                            <DeliverIcon /> Deliver work to client
                                         </button>
                                     )}
                                     {isFreelancer && task.status === 'open' && (

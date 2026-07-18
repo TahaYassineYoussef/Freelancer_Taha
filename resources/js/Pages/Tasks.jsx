@@ -1,4 +1,5 @@
 import PanelLayout from '@/Layouts/PanelLayout';
+import DeliverIcon from '@/Components/DeliverIcon';
 import useNotifFlash from '@/useNotifFlash';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
@@ -115,7 +116,7 @@ export default function Tasks({ tasks, counts }) {
                                         </>
                                     )}
                                     {task.status === 'in_progress' && (
-                                        <Link href={route('work.index', { task: task.id })} className="rounded-full bg-gold px-4 py-1.5 text-sm font-bold text-ink hover:bg-gold-300">📦 Deliver</Link>
+                                        <Link href={route('work.index', { task: task.id })} className="inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-1.5 text-sm font-bold text-ink hover:bg-gold-300"><DeliverIcon /> Deliver</Link>
                                     )}
                                     {task.client && (
                                         <Link href={route('chat.index', { with: task.client.id })} className="text-sm text-gray-400 hover:text-gold">Chat</Link>

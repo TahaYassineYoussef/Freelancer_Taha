@@ -1,5 +1,6 @@
 import PanelLayout from '@/Layouts/PanelLayout';
 import DeliverForm from '@/Components/DeliverForm';
+import DeliverIcon from '@/Components/DeliverIcon';
 import useNotifFlash from '@/useNotifFlash';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
@@ -85,7 +86,7 @@ export default function Work({ tasks }) {
                                 footer={
                                     delivering === task.id
                                         ? <button onClick={() => setDelivering(null)} className="text-sm text-gray-400 hover:text-white">Cancel</button>
-                                        : <button onClick={() => setDelivering(task.id)} className="rounded-full bg-gold px-4 py-2 text-sm font-bold text-ink hover:bg-gold-300">📦 Deliver</button>
+                                        : <button onClick={() => setDelivering(task.id)} className="inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-sm font-bold text-ink hover:bg-gold-300"><DeliverIcon /> Deliver</button>
                                 }>
                                 {task.revision_note && (
                                     <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
