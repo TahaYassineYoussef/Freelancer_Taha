@@ -5,6 +5,7 @@ import DeliverForm from '@/Components/DeliverForm';
 import LineChart from '@/Components/LineChart';
 import RequestChangesModal from '@/Components/RequestChangesModal';
 import useNotifFlash from '@/useNotifFlash';
+import { useT } from '@/i18n';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -79,9 +80,10 @@ function DeliveredBox({ task }) {
 
 /** Right-column panel listing recent clients (freelancer) with pay status + chat. */
 function LatestClients({ clients }) {
+    const t = useT();
     return (
         <div className="rounded-2xl border border-white/5 bg-ink-700 p-6">
-            <h2 className="mb-4 text-lg font-bold text-white">Latest Clients</h2>
+            <h2 className="mb-4 text-lg font-bold text-white">{t('Latest Clients')}</h2>
             {clients.length === 0 ? (
                 <p className="text-sm text-gray-500">No clients yet.</p>
             ) : (
@@ -96,10 +98,10 @@ function LatestClients({ clients }) {
                                 <p className="truncate text-xs text-gray-500">{c.task}</p>
                             </div>
                             <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${c.paid ? 'bg-green-500/15 text-green-300' : 'bg-gold/15 text-gold'}`}>
-                                {c.paid ? 'Paid' : 'Awaiting'}
+                                {c.paid ? t('Paid') : t('Awaiting')}
                             </span>
                             <Link href={route('chat.index', { with: c.id })} className="rounded-full border border-white/15 px-3 py-1 text-xs font-semibold text-white hover:border-gold hover:text-gold">
-                                Chat
+                                {t('Chat')}
                             </Link>
                         </div>
                     ))}
@@ -116,6 +118,7 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
     const [delivering, setDelivering] = useState(null);
     const [changeTask, setChangeTask] = useState(null);
     const [q, setQ] = useState('');
+    const t = useT();
 
     useNotifFlash('task');
 
@@ -134,16 +137,16 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 {isFreelancer ? (
                     <>
-                        <Kpi icon="💰" value={money(kpis.revenue, kpis.currency)} label="This Month Revenue" trend={kpis.revenue_trend} />
-                        <Kpi icon="✅" value={kpis.accepted} label="Tasks Accepted" />
-                        <Kpi icon="⏱️" value={kpis.on_time_pct != null ? `${kpis.on_time_pct}%` : '—'} label="Delivered On Time" />
-                        <Kpi icon="👥" value={kpis.clients} label="Clients" />
+                        <Kpi icon="💰" value={money(kpis.revenue, kpis.currency)} label={t('This Month Revenue')} trend={kpis.revenue_trend} />
+                        <Kpi icon="✅" value={kpis.accepted} label={t('Tasks Accepted')} />
+                        <Kpi icon="⏱️" value={kpis.on_time_pct != null ? `${kpis.on_time_pct}%` : '—'} label={t('Delivered On Time')} />
+                        <Kpi icon="👥" value={kpis.clients} label={t('Clients')} />
                     </>
                 ) : (
                     <>
                         <Kpi icon="💳" value={money(kpis.spent, kpis.currency)} label="Total Spent" />
                         <Kpi icon="📋" value={kpis.active} label="Active Tasks" />
-                        <Kpi icon="📦" value={kpis.delivered} label="Awaiting Approval" />
+                        <Kpi icon="📦" value={kpis.delivered} label={t('Awaiting Approval')} />
                         <Kpi icon="✅" value={kpis.completed} label="Completed" />
                     </>
                 )}
@@ -169,15 +172,15 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
 
             {/* Task list with full workflow */}
             <div className="mt-8 mb-5 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-lg font-bold text-white">{isFreelancer ? 'Incoming Tasks' : 'My Posted Tasks'}</h2>
+                <h2 className="text-lg font-bold text-white">{isFreelancer ? t('Incoming Tasks') : t('My Posted Tasks')}</h2>
                 <div className="flex items-center gap-3">
                     <input
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
-                        placeholder="Search tasks…"
+                        placeholder={t('Search tasks…')}
                         className="w-44 rounded-full border border-white/10 bg-ink px-4 py-2 text-sm text-white placeholder-gray-500 focus:border-gold focus:ring-gold"
                     />
-                    <Link href={route('chat.index')} className="rounded-full bg-gold px-5 py-2 text-sm font-semibold text-ink hover:bg-gold-300">Open Chat</Link>
+                    <Link href={route('chat.index')} className="rounded-full bg-gold px-5 py-2 text-sm font-semibold text-ink hover:bg-gold-300">{t('Open Chat')}</Link>
                 </div>
             </div>
 

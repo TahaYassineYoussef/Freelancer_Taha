@@ -1,3 +1,4 @@
+import { useT } from '@/i18n';
 import { useMemo, useState } from 'react';
 
 const GRAINS = [
@@ -13,6 +14,7 @@ const PAD = { top: 20, right: 16, bottom: 28, left: 32 };
 export default function LineChart({ title = 'Task Progress', series }) {
     const [grain, setGrain] = useState('monthly');
     const [hover, setHover] = useState(null);
+    const t = useT();
 
     const data = series?.[grain] ?? [];
 
@@ -56,7 +58,7 @@ export default function LineChart({ title = 'Task Progress', series }) {
     return (
         <div className="rounded-2xl border border-white/5 bg-ink-700 p-6">
             <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white">{title}</h2>
+                <h2 className="text-lg font-bold text-white">{t(title)}</h2>
                 <div className="flex rounded-full bg-ink p-1 text-xs">
                     {GRAINS.map((g) => (
                         <button
@@ -66,7 +68,7 @@ export default function LineChart({ title = 'Task Progress', series }) {
                                 grain === g.key ? 'bg-gold text-ink' : 'text-gray-400 hover:text-white'
                             }`}
                         >
-                            {g.label}
+                            {t(g.label)}
                         </button>
                     ))}
                 </div>

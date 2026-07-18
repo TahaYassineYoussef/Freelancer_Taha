@@ -2,7 +2,7 @@ import CallProvider from '@/CallProvider';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import NotificationBell from '@/Components/NotificationBell';
 import Photo from '@/Components/Photo';
-import { useApplyDirection } from '@/i18n';
+import { useApplyDirection, useT } from '@/i18n';
 import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -67,6 +67,7 @@ export default function PanelLayout({ title, children }) {
     const [open, setOpen] = useState(false);
 
     const close = () => setOpen(false);
+    const t = useT();
 
     useApplyDirection();
 
@@ -88,29 +89,29 @@ export default function PanelLayout({ title, children }) {
 
     const nav = (
         <nav className="space-y-1">
-            <NavItem href={route('home')} icon={ICONS.home} onClick={close}>Home</NavItem>
-            <NavItem href={route('dashboard')} icon={ICONS.grid} active={current === 'dashboard'} onClick={close}>Dashboard</NavItem>
-            <NavItem href={route('chat.index')} icon={ICONS.chat} active={current?.startsWith('chat')} badge={unread} onClick={close}>Chat</NavItem>
+            <NavItem href={route('home')} icon={ICONS.home} onClick={close}>{t('Home')}</NavItem>
+            <NavItem href={route('dashboard')} icon={ICONS.grid} active={current === 'dashboard'} onClick={close}>{t('Dashboard')}</NavItem>
+            <NavItem href={route('chat.index')} icon={ICONS.chat} active={current?.startsWith('chat')} badge={unread} onClick={close}>{t('Chat')}</NavItem>
             {!isFreelancer && (
                 <>
-                    <NavItem href={route('mytasks.index')} icon={ICONS.list} active={current?.startsWith('mytasks')} onClick={close}>My Tasks</NavItem>
-                    <NavItem href={route('deliveries.index')} icon={ICONS.box} active={current?.startsWith('deliveries')} badge={pendingDeliveries} onClick={close}>Deliveries</NavItem>
-                    <NavItem href={route('booking.index')} icon={ICONS.calendar} active={current?.startsWith('booking')} onClick={close}>Book a Call</NavItem>
+                    <NavItem href={route('mytasks.index')} icon={ICONS.list} active={current?.startsWith('mytasks')} onClick={close}>{t('My Tasks')}</NavItem>
+                    <NavItem href={route('deliveries.index')} icon={ICONS.box} active={current?.startsWith('deliveries')} badge={pendingDeliveries} onClick={close}>{t('Deliveries')}</NavItem>
+                    <NavItem href={route('booking.index')} icon={ICONS.calendar} active={current?.startsWith('booking')} onClick={close}>{t('Book a Call')}</NavItem>
                 </>
             )}
             {isFreelancer && (
                 <>
-                    <NavItem href={route('payments.index')} icon={ICONS.cash} active={current?.startsWith('payments')} onClick={close}>Payments</NavItem>
-                    <NavItem href={route('tasks.index')} icon={ICONS.list} active={current?.startsWith('tasks')} badge={newTasks} onClick={close}>Tasks</NavItem>
-                    <NavItem href={route('work.index')} icon={ICONS.box} active={current?.startsWith('work')} onClick={close}>Deliveries</NavItem>
-                    <NavItem href={route('reviews.index')} icon={ICONS.star} active={current?.startsWith('reviews')} onClick={close}>Reviews</NavItem>
-                    <NavItem href={route('payment.settings')} icon={ICONS.wallet} active={current?.startsWith('payment.settings')} onClick={close}>Get Paid</NavItem>
-                    <NavItem href={route('revisions.index')} icon={ICONS.revise} active={current?.startsWith('revisions')} badge={pendingRevisions} onClick={close}>Revisions</NavItem>
-                    <NavItem href={route('bookings.index')} icon={ICONS.calendar} active={current === 'bookings.index'} badge={pendingBookings} onClick={close}>Bookings</NavItem>
-                    <NavItem href={route('availability.edit')} icon={ICONS.clock} active={current?.startsWith('availability')} onClick={close}>Availability</NavItem>
-                    <NavItem href={route('contact.index')} icon={ICONS.mail} active={current?.startsWith('contact')} onClick={close}>Inbox</NavItem>
-                    <NavItem href={route('moderation.index')} icon={ICONS.shield} active={current?.startsWith('moderation')} onClick={close}>Blocked</NavItem>
-                    <NavItem href={route('cv.edit')} icon={ICONS.doc} active={current?.startsWith('cv')} onClick={close}>Manage CV</NavItem>
+                    <NavItem href={route('payments.index')} icon={ICONS.cash} active={current?.startsWith('payments')} onClick={close}>{t('Payments')}</NavItem>
+                    <NavItem href={route('tasks.index')} icon={ICONS.list} active={current?.startsWith('tasks')} badge={newTasks} onClick={close}>{t('Tasks')}</NavItem>
+                    <NavItem href={route('work.index')} icon={ICONS.box} active={current?.startsWith('work')} onClick={close}>{t('Deliveries')}</NavItem>
+                    <NavItem href={route('reviews.index')} icon={ICONS.star} active={current?.startsWith('reviews')} onClick={close}>{t('Reviews')}</NavItem>
+                    <NavItem href={route('payment.settings')} icon={ICONS.wallet} active={current?.startsWith('payment.settings')} onClick={close}>{t('Get Paid')}</NavItem>
+                    <NavItem href={route('revisions.index')} icon={ICONS.revise} active={current?.startsWith('revisions')} badge={pendingRevisions} onClick={close}>{t('Revisions')}</NavItem>
+                    <NavItem href={route('bookings.index')} icon={ICONS.calendar} active={current === 'bookings.index'} badge={pendingBookings} onClick={close}>{t('Bookings')}</NavItem>
+                    <NavItem href={route('availability.edit')} icon={ICONS.clock} active={current?.startsWith('availability')} onClick={close}>{t('Availability')}</NavItem>
+                    <NavItem href={route('contact.index')} icon={ICONS.mail} active={current?.startsWith('contact')} onClick={close}>{t('Inbox')}</NavItem>
+                    <NavItem href={route('moderation.index')} icon={ICONS.shield} active={current?.startsWith('moderation')} onClick={close}>{t('Blocked')}</NavItem>
+                    <NavItem href={route('cv.edit')} icon={ICONS.doc} active={current?.startsWith('cv')} onClick={close}>{t('Manage CV')}</NavItem>
                 </>
             )}
         </nav>
@@ -136,7 +137,7 @@ export default function PanelLayout({ title, children }) {
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 16l4-4-4-4M21 12H9M13 21H5a2 2 0 01-2-2V5a2 2 0 012-2h8" />
                             </svg>
-                            Logout
+                            {t('Logout')}
                         </Link>
                     </div>
                 </div>
@@ -157,8 +158,8 @@ export default function PanelLayout({ title, children }) {
                                 </svg>
                             </button>
                             <div>
-                                <h1 className="text-lg font-black text-white sm:text-xl">Hi {user?.name?.split(' ')[0]}</h1>
-                                <p className="text-xs text-gray-400">{title}</p>
+                                <h1 className="text-lg font-black text-white sm:text-xl">{t('Hi')} {user?.name?.split(' ')[0]}</h1>
+                                <p className="text-xs text-gray-400">{t(title)}</p>
                             </div>
                         </div>
 
