@@ -255,5 +255,19 @@
     "Send delivery": "إرسال التسليم",
     "Tell Taha what to adjust on": "أخبر طه بما يجب تعديله في",
     "He'll get it back to “in progress”.": "سيعيده إلى حالة «قيد التنفيذ».",
-    "Describe the changes you'd like… (e.g. the header color, missing contact form, a bug on mobile)": "صِف التعديلات التي ترغب بها… (مثل لون الترويسة، نموذج اتصال مفقود، خلل على الهاتف)"
+    "Describe the changes you'd like… (e.g. the header color, missing contact form, a bug on mobile)": "صِف التعديلات التي ترغب بها… (مثل لون الترويسة، نموذج اتصال مفقود، خلل على الهاتف)",
+    "Total Received": "إجمالي المستلَم",
+    "Completed Payments": "المدفوعات المكتملة",
+    "Pending Review": "بانتظار المراجعة",
+    "Date": "التاريخ",
+    "Client": "العميل",
+    "Task": "المهمة",
+    "Amount": "المبلغ",
+    "Method": "طريقة الدفع",
+    "Reference": "المرجع",
+    "Status": "الحالة",
+    "Action": "الإجراء",
+    "No payments yet. They appear here once a client pays for a task.": "لا توجد مدفوعات بعد. تظهر هنا بمجرد أن يدفع العميل مقابل مهمة.",
+    "Reject": "رفض",
+    "Failed": "فشل"
 }

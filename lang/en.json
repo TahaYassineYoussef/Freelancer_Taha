@@ -251,5 +251,19 @@
     "Send delivery": "Send delivery",
     "Tell Taha what to adjust on": "Tell Taha what to adjust on",
     "He'll get it back to “in progress”.": "He'll get it back to “in progress”.",
-    "Describe the changes you'd like… (e.g. the header color, missing contact form, a bug on mobile)": "Describe the changes you'd like… (e.g. the header color, missing contact form, a bug on mobile)"
+    "Describe the changes you'd like… (e.g. the header color, missing contact form, a bug on mobile)": "Describe the changes you'd like… (e.g. the header color, missing contact form, a bug on mobile)",
+    "Total Received": "Total Received",
+    "Completed Payments": "Completed Payments",
+    "Pending Review": "Pending Review",
+    "Date": "Date",
+    "Client": "Client",
+    "Task": "Task",
+    "Amount": "Amount",
+    "Method": "Method",
+    "Reference": "Reference",
+    "Status": "Status",
+    "Action": "Action",
+    "No payments yet. They appear here once a client pays for a task.": "No payments yet. They appear here once a client pays for a task.",
+    "Reject": "Reject",
+    "Failed": "Failed"
 }

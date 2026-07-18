@@ -1,4 +1,5 @@
 import PanelLayout from '@/Layouts/PanelLayout';
+import { useT } from '@/i18n';
 import { Head, router } from '@inertiajs/react';
 
 const STATUS_STYLES = {
@@ -6,6 +7,8 @@ const STATUS_STYLES = {
     pending: 'bg-gold/15 text-gold',
     failed: 'bg-red-500/15 text-red-300',
 };
+
+const STATUS_LABEL = { completed: 'Completed', pending: 'Pending', failed: 'Failed' };
 
 const PROVIDER_LABEL = {
     paypal: 'PayPal',
@@ -39,6 +42,7 @@ function Stat({ label, value, accent }) {
 }
 
 export default function Payments({ payments, stats }) {
+    const t = useT();
     const review = (payment, status) => {
         router.patch(route('payments.review', payment.id), { status }, { preserveScroll: true });
     };
@@ -48,9 +52,9 @@ export default function Payments({ payments, stats }) {
             <Head title="Payments" />
 
             <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <Stat label="Total Received" value={money(stats.total_received, stats.currency)} accent="text-green-300" />
-                <Stat label="Completed Payments" value={stats.completed_count} accent="text-white" />
-                <Stat label="Pending Review" value={stats.pending_count} accent="text-gold" />
+                <Stat label={t('Total Received')} value={money(stats.total_received, stats.currency)} accent="text-green-300" />
+                <Stat label={t('Completed Payments')} value={stats.completed_count} accent="text-white" />
+                <Stat label={t('Pending Review')} value={stats.pending_count} accent="text-gold" />
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-white/5 bg-ink-700">
@@ -58,21 +62,21 @@ export default function Payments({ payments, stats }) {
                     <table className="w-full text-left text-sm">
                         <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-gray-400">
                             <tr>
-                                <th className="px-5 py-3">Date</th>
-                                <th className="px-5 py-3">Client</th>
-                                <th className="px-5 py-3">Task</th>
-                                <th className="px-5 py-3">Amount</th>
-                                <th className="px-5 py-3">Method</th>
-                                <th className="px-5 py-3">Reference</th>
-                                <th className="px-5 py-3">Status</th>
-                                <th className="px-5 py-3 text-right">Action</th>
+                                <th className="px-5 py-3">{t('Date')}</th>
+                                <th className="px-5 py-3">{t('Client')}</th>
+                                <th className="px-5 py-3">{t('Task')}</th>
+                                <th className="px-5 py-3">{t('Amount')}</th>
+                                <th className="px-5 py-3">{t('Method')}</th>
+                                <th className="px-5 py-3">{t('Reference')}</th>
+                                <th className="px-5 py-3">{t('Status')}</th>
+                                <th className="px-5 py-3 text-right">{t('Action')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {payments.length === 0 ? (
                                 <tr>
                                     <td colSpan={8} className="px-5 py-10 text-center text-gray-500">
-                                        No payments yet. They appear here once a client pays for a task.
+                                        {t('No payments yet. They appear here once a client pays for a task.')}
                                     </td>
                                 </tr>
                             ) : (
@@ -96,8 +100,8 @@ export default function Payments({ payments, stats }) {
                                             {p.provider_order_id ?? '—'}
                                         </td>
                                         <td className="px-5 py-3">
-                                            <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${STATUS_STYLES[p.status] ?? 'bg-white/10 text-gray-300'}`}>
-                                                {p.status}
+                                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLES[p.status] ?? 'bg-white/10 text-gray-300'}`}>
+                                                {STATUS_LABEL[p.status] ? t(STATUS_LABEL[p.status]) : p.status}
                                             </span>
                                         </td>
                                         <td className="whitespace-nowrap px-5 py-3 text-right">
@@ -107,13 +111,13 @@ export default function Payments({ payments, stats }) {
                                                         onClick={() => review(p, 'completed')}
                                                         className="rounded-full bg-green-500/15 px-3 py-1 text-xs font-semibold text-green-300 hover:bg-green-500/25"
                                                     >
-                                                        ✓ Confirm
+                                                        ✓ {t('Confirm')}
                                                     </button>
                                                     <button
                                                         onClick={() => review(p, 'failed')}
                                                         className="rounded-full bg-red-500/15 px-3 py-1 text-xs font-semibold text-red-300 hover:bg-red-500/25"
                                                     >
-                                                        ✕ Reject
+                                                        ✕ {t('Reject')}
                                                     </button>
                                                 </div>
                                             ) : (

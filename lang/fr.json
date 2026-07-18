@@ -251,5 +251,19 @@
     "Send delivery": "Envoyer la livraison",
     "Tell Taha what to adjust on": "Indiquez à Taha ce qu'il faut ajuster sur",
     "He'll get it back to “in progress”.": "Il le remettra « en cours ».",
-    "Describe the changes you'd like… (e.g. the header color, missing contact form, a bug on mobile)": "Décrivez les modifications souhaitées… (ex. la couleur de l'en-tête, un formulaire de contact manquant, un bug sur mobile)"
+    "Describe the changes you'd like… (e.g. the header color, missing contact form, a bug on mobile)": "Décrivez les modifications souhaitées… (ex. la couleur de l'en-tête, un formulaire de contact manquant, un bug sur mobile)",
+    "Total Received": "Total reçu",
+    "Completed Payments": "Paiements terminés",
+    "Pending Review": "En attente de vérification",
+    "Date": "Date",
+    "Client": "Client",
+    "Task": "Tâche",
+    "Amount": "Montant",
+    "Method": "Méthode",
+    "Reference": "Référence",
+    "Status": "Statut",
+    "Action": "Action",
+    "No payments yet. They appear here once a client pays for a task.": "Aucun paiement pour l'instant. Ils apparaissent ici dès qu'un client paie une tâche.",
+    "Reject": "Rejeter",
+    "Failed": "Échoué"
 }
