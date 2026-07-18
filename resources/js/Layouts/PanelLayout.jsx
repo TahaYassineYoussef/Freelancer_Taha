@@ -1,8 +1,8 @@
 import CallProvider from '@/CallProvider';
 import NotificationBell from '@/Components/NotificationBell';
 import Photo from '@/Components/Photo';
-import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 
 const ICONS = {
     home: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10',
@@ -65,6 +65,22 @@ export default function PanelLayout({ title, children }) {
     const [open, setOpen] = useState(false);
 
     const close = () => setOpen(false);
+
+    // Keep the whole dashboard live: silently refresh the current page's data
+    // and the shared notifications/badges every few seconds — no manual reload.
+    // preserveState/Scroll keeps your place, open modals, chat and calls intact.
+    // We skip while another Inertia request is in flight (so it never interrupts
+    // a click) and while the tab is hidden.
+    const busyRef = useRef(false);
+    useEffect(() => {
+        const offStart = router.on('start', () => { busyRef.current = true; });
+        const offFinish = router.on('finish', () => { busyRef.current = false; });
+        const id = setInterval(() => {
+            if (document.hidden || busyRef.current) return;
+            router.reload({ preserveState: true, preserveScroll: true });
+        }, 7000);
+        return () => { clearInterval(id); offStart(); offFinish(); };
+    }, []);
 
     const nav = (
         <nav className="space-y-1">
