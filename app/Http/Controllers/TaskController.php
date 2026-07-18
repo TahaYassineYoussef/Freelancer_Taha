@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\User;
 use App\Notifications\ActivityNotification;
-use App\Notifications\TaskPosted;
 use App\Rules\CleanText;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,14 +29,14 @@ class TaskController extends Controller
 
         $task = $request->user()->tasks()->create([...$data, 'status' => 'open']);
 
-        $freelancer = $this->freelancer();
-        $freelancer?->notify(new ActivityNotification(
+        $this->push(
+            $this->freelancer(),
             'task',
             'New task posted',
             "{$request->user()->name} posted “{$task->title}”.",
             route('tasks.index', ['status' => 'open', 'task' => $task->id]),
             '📋',
-        ));
+        );
 
         return back()->with('success', 'Your task has been posted. Taha will get back to you soon!');
     }
@@ -52,8 +51,9 @@ class TaskController extends Controller
 
         $task->update(['status' => 'in_progress']);
 
-        $this->notify($task->user, $task, 'task', 'Task accepted',
-            "Taha accepted your task “{$task->title}” and started working on it.", '✅');
+        $this->push($task->user, 'task', 'Task accepted',
+            "Taha accepted your task “{$task->title}” and started working on it.",
+            route('dashboard', ['task' => $task->id]), '✅');
 
         return back()->with('success', 'Task accepted — it is now in progress.');
     }
@@ -68,8 +68,9 @@ class TaskController extends Controller
 
         $task->update(['status' => 'declined']);
 
-        $this->notify($task->user, $task, 'task', 'Task declined',
-            "Taha is unable to take on “{$task->title}” right now.", '🚫');
+        $this->push($task->user, 'task', 'Task declined',
+            "Taha is unable to take on “{$task->title}” right now.",
+            route('dashboard', ['task' => $task->id]), '🚫');
 
         return back()->with('success', 'Task declined.');
     }
@@ -106,13 +107,9 @@ class TaskController extends Controller
             'revision_note' => null, // a fresh delivery clears the previous change request
         ]);
 
-        $task->user?->notify(new ActivityNotification(
-            'task',
-            'Work delivered',
+        $this->push($task->user, 'task', 'Work delivered',
             "Taha delivered “{$task->title}”. Review and approve it.",
-            route('deliveries.index', ['task' => $task->id]),
-            '📦',
-        ));
+            route('deliveries.index', ['task' => $task->id]), '📦');
 
         return back()->with('success', 'Delivery sent to the client.');
     }
@@ -127,13 +124,9 @@ class TaskController extends Controller
 
         $task->update(['status' => 'completed']);
 
-        $this->freelancer()?->notify(new ActivityNotification(
-            'task',
-            'Delivery approved',
+        $this->push($this->freelancer(), 'task', 'Delivery approved',
             "{$task->user->name} approved “{$task->title}”. 🎉",
-            route('work.index', ['task' => $task->id]),
-            '🎉',
-        ));
+            route('work.index', ['task' => $task->id]), '🎉');
 
         return back()->with('success', 'Delivery approved. Thank you!');
     }
@@ -156,13 +149,9 @@ class TaskController extends Controller
         ]);
 
         $note = ! empty($data['note']) ? ' Note: '.$data['note'] : '';
-        $this->freelancer()?->notify(new ActivityNotification(
-            'revision',
-            'Changes requested',
+        $this->push($this->freelancer(), 'revision', 'Changes requested',
             "{$task->user->name} requested changes on “{$task->title}”.{$note}",
-            route('revisions.index', ['task' => $task->id]),
-            '🔁',
-        ));
+            route('revisions.index', ['task' => $task->id]), '🔁');
 
         return back()->with('success', 'Change request sent.');
     }
@@ -211,10 +200,24 @@ class TaskController extends Controller
         abort_unless(Auth::user()->isFreelancer(), 403);
     }
 
-    private function notify(?User $user, Task $task, string $type, string $title, string $message, string $icon): void
+    /**
+     * Send a bell + email notification AFTER the HTTP response, so the user
+     * action returns instantly and a slow or failing email never breaks it.
+     */
+    private function push(?User $user, string $type, string $title, string $message, string $url, string $icon): void
     {
-        // Deep-link to the exact task so the dashboard scrolls to and highlights it.
-        $url = route('dashboard', ['task' => $task->id]);
-        $user?->notify(new ActivityNotification($type, $title, $message, $url, $icon));
+        if (! $user) {
+            return;
+        }
+
+        $notification = new ActivityNotification($type, $title, $message, $url, $icon);
+
+        dispatch(function () use ($user, $notification) {
+            try {
+                $user->notify($notification);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notification send failed: '.$e->getMessage());
+            }
+        })->afterResponse();
     }
 }

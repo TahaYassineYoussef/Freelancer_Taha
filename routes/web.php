@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ClientTaskController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CvController;
 use App\Http\Controllers\CvPdfController;
@@ -61,6 +62,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{task}/pay', [PaymentController::class, 'store'])->name('payments.store');
     // Payments (client declares a D17 transfer for a task)
     Route::post('/tasks/{task}/d17', [PaymentController::class, 'storeD17'])->name('payments.d17');
+
+    // Client's own tasks (filterable)
+    Route::get('/my-tasks', [ClientTaskController::class, 'index'])->name('mytasks.index');
 
     // Client's deliveries (work delivered to them, awaiting approval)
     Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');

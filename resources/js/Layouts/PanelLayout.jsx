@@ -68,7 +68,10 @@ export default function PanelLayout({ title, children }) {
             <NavItem href={route('dashboard')} icon={ICONS.grid} active={current === 'dashboard'} onClick={close}>Dashboard</NavItem>
             <NavItem href={route('chat.index')} icon={ICONS.chat} active={current?.startsWith('chat')} badge={unread} onClick={close}>Chat</NavItem>
             {!isFreelancer && (
-                <NavItem href={route('deliveries.index')} icon={ICONS.box} active={current?.startsWith('deliveries')} badge={pendingDeliveries} onClick={close}>Deliveries</NavItem>
+                <>
+                    <NavItem href={route('mytasks.index')} icon={ICONS.list} active={current?.startsWith('mytasks')} onClick={close}>My Tasks</NavItem>
+                    <NavItem href={route('deliveries.index')} icon={ICONS.box} active={current?.startsWith('deliveries')} badge={pendingDeliveries} onClick={close}>Deliveries</NavItem>
+                </>
             )}
             {isFreelancer && (
                 <>
