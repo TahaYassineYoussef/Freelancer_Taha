@@ -22,6 +22,16 @@ class HomeController extends Controller
             ->first();
 
         if ($freelancer) {
+            // Show the headline/bio in the visitor's language (fall back to English).
+            $locale = app()->getLocale();
+            if ($locale === 'fr') {
+                $freelancer->headline = $freelancer->headline_fr ?: $freelancer->headline;
+                $freelancer->bio = $freelancer->bio_fr ?: $freelancer->bio;
+            } elseif ($locale === 'ar') {
+                $freelancer->headline = $freelancer->headline_ar ?: $freelancer->headline;
+                $freelancer->bio = $freelancer->bio_ar ?: $freelancer->bio;
+            }
+
             $freelancer->avatar_url = $freelancer->avatarUrl();
             $freelancer->projects->each(function ($project) {
                 $project->image_url = $project->image

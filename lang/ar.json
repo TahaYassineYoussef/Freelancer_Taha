@@ -294,5 +294,8 @@
     "Freelance Full-Stack Developer": "مطوّر Full-Stack مستقل",
     "I am Taha Yassine Youssef, a passionate full-stack developer specialising in building modern web applications with Laravel, React and clean, scalable architecture. I help startups and businesses turn ideas into polished digital products.": "أنا طه ياسين يوسف، مطوّر full-stack شغوف متخصص في بناء تطبيقات ويب حديثة باستخدام Laravel وReact وبنية نظيفة وقابلة للتوسّع. أساعد الشركات الناشئة والأعمال على تحويل أفكارها إلى منتجات رقمية متقنة.",
     "Chat with me": "تحدّث معي",
-    "Email": "البريد الإلكتروني"
+    "Email": "البريد الإلكتروني",
+    "Leave empty to use English": "اتركه فارغًا لاستخدام الإنجليزية",
+    "Total Spent": "إجمالي المصروف",
+    "Active Tasks": "المهام النشطة"
 }

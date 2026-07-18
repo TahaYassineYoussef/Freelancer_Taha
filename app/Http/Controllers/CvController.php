@@ -33,7 +33,7 @@ class CvController extends Controller
             ->get(['id', 'user_id', 'rating', 'body', 'role_title', 'approved', 'created_at']);
 
         return Inertia::render('Cv/Manage', [
-            'profile' => $me->only(['name', 'headline', 'bio', 'location', 'phone', 'd17_number']),
+            'profile' => $me->only(['name', 'headline', 'headline_fr', 'headline_ar', 'bio', 'bio_fr', 'bio_ar', 'location', 'phone', 'd17_number']),
             'avatarUrl' => $me->avatarUrl(),
             'd17QrUrl' => $me->d17_qr ? Storage::url($me->d17_qr) : null,
             'testimonials' => $testimonials,
@@ -51,7 +51,11 @@ class CvController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'headline' => ['nullable', 'string', 'max:255'],
+            'headline_fr' => ['nullable', 'string', 'max:255'],
+            'headline_ar' => ['nullable', 'string', 'max:255'],
             'bio' => ['nullable', 'string'],
+            'bio_fr' => ['nullable', 'string'],
+            'bio_ar' => ['nullable', 'string'],
             'location' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'd17_number' => ['nullable', 'string', 'max:50'],

@@ -155,7 +155,7 @@ function Hero({ freelancer, user }) {
                         {t('Youssef')}
                     </h1>
                     <p className="mt-5 text-lg text-gray-300">
-                        {t(freelancer?.headline ?? 'Freelance Full-Stack Developer')}
+                        {freelancer?.headline || t('Freelance Full-Stack Developer')}
                     </p>
 
                     <div className="mt-8 flex flex-wrap gap-4">
@@ -213,7 +213,7 @@ function About({ freelancer, user }) {
                 />
                 <div>
                     <SectionTitle ghost="About">About Me</SectionTitle>
-                    <p className="max-w-2xl text-gray-300">{t(freelancer?.bio || '')}</p>
+                    <p className="max-w-2xl text-gray-300">{freelancer?.bio}</p>
 
                     <dl className="mt-8 grid max-w-xl grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                         <Detail label="Name" value={freelancer?.name} />

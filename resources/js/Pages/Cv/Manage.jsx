@@ -14,7 +14,11 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
     const [data, setData] = useState({
         name: profile.name ?? '',
         headline: profile.headline ?? '',
+        headline_fr: profile.headline_fr ?? '',
+        headline_ar: profile.headline_ar ?? '',
         bio: profile.bio ?? '',
+        bio_fr: profile.bio_fr ?? '',
+        bio_ar: profile.bio_ar ?? '',
         location: profile.location ?? '',
         phone: profile.phone ?? '',
         d17_number: profile.d17_number ?? '',
@@ -90,8 +94,16 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
                         <input value={data.name} onChange={(e) => set('name', e.target.value)} className={inputCls} />
                     </label>
                     <label className="block">
-                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('Headline')}</span>
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('Headline')} 🇬🇧</span>
                         <input value={data.headline} onChange={(e) => set('headline', e.target.value)} className={inputCls} />
+                    </label>
+                    <label className="block">
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('Headline')} 🇫🇷</span>
+                        <input value={data.headline_fr} onChange={(e) => set('headline_fr', e.target.value)} className={inputCls} placeholder={t('Leave empty to use English')} />
+                    </label>
+                    <label className="block" dir="rtl">
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('Headline')} 🇹🇳</span>
+                        <input value={data.headline_ar} onChange={(e) => set('headline_ar', e.target.value)} className={inputCls} placeholder={t('Leave empty to use English')} />
                     </label>
                     <label className="block">
                         <span className="mb-1 block text-xs font-medium text-gray-400">{t('Location')}</span>
@@ -127,8 +139,16 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
                 </div>
 
                 <label className="block">
-                    <span className="mb-1 block text-xs font-medium text-gray-400">{t('Bio')}</span>
+                    <span className="mb-1 block text-xs font-medium text-gray-400">{t('Bio')} 🇬🇧</span>
                     <textarea rows={4} value={data.bio} onChange={(e) => set('bio', e.target.value)} className={inputCls} />
+                </label>
+                <label className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-400">{t('Bio')} 🇫🇷</span>
+                    <textarea rows={4} value={data.bio_fr} onChange={(e) => set('bio_fr', e.target.value)} className={inputCls} placeholder={t('Leave empty to use English')} />
+                </label>
+                <label className="block" dir="rtl">
+                    <span className="mb-1 block text-xs font-medium text-gray-400">{t('Bio')} 🇹🇳</span>
+                    <textarea rows={4} value={data.bio_ar} onChange={(e) => set('bio_ar', e.target.value)} className={inputCls} placeholder={t('Leave empty to use English')} />
                 </label>
                 <button
                     type="submit"

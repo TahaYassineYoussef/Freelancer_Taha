@@ -40,13 +40,26 @@ function Badge({ status }) {
     );
 }
 
+// Filled KPI icons (solid, matching the sidebar/notification icon set).
+const KPI_ICONS = {
+    money: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15.93V19h-2v-1.05c-1.4-.29-2.5-1.13-2.58-2.45h1.5c.09.68.68 1.2 1.66 1.2 1.05 0 1.42-.52 1.42-1.02 0-.68-.36-1.03-1.9-1.4-1.7-.4-2.86-1.1-2.86-2.5 0-1.18.95-1.95 2.16-2.2V6h2v1.06c1.3.32 2.06 1.28 2.11 2.4h-1.5c-.06-.72-.53-1.2-1.5-1.2-.94 0-1.5.42-1.5 1.02 0 .53.4.87 1.9 1.25 1.65.42 2.86 1.05 2.86 2.65 0 1.25-.95 2.05-2.28 2.29z',
+    check: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+    clock: 'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z',
+    people: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
+    card: 'M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z',
+    list: 'M3 5h2v2H3V5zm0 6h2v2H3v-2zm0 6h2v2H3v-2zM7 5h14v2H7V5zm0 6h14v2H7v-2zm0 6h14v2H7v-2z',
+    box: 'M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z',
+};
+
 /** KPI card with an icon, value, label and optional trend badge. */
 function Kpi({ icon, value, label, trend }) {
     const up = trend != null && trend >= 0;
     return (
         <div className="rounded-2xl border border-white/5 bg-ink-700 p-5">
             <div className="flex items-start justify-between">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gold/15 text-xl">{icon}</span>
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gold/15 text-gold">
+                    <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d={KPI_ICONS[icon] ?? KPI_ICONS.list} /></svg>
+                </span>
                 {trend != null && (
                     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${up ? 'bg-green-500/15 text-green-300' : 'bg-red-500/15 text-red-300'}`}>
                         {up ? '▲' : '▼'} {Math.abs(trend)}%
@@ -138,17 +151,17 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 {isFreelancer ? (
                     <>
-                        <Kpi icon="💰" value={money(kpis.revenue, kpis.currency)} label={t('This Month Revenue')} trend={kpis.revenue_trend} />
-                        <Kpi icon="✅" value={kpis.accepted} label={t('Tasks Accepted')} />
-                        <Kpi icon="⏱️" value={kpis.on_time_pct != null ? `${kpis.on_time_pct}%` : '—'} label={t('Delivered On Time')} />
-                        <Kpi icon="👥" value={kpis.clients} label={t('Clients')} />
+                        <Kpi icon="money" value={money(kpis.revenue, kpis.currency)} label={t('This Month Revenue')} trend={kpis.revenue_trend} />
+                        <Kpi icon="check" value={kpis.accepted} label={t('Tasks Accepted')} />
+                        <Kpi icon="clock" value={kpis.on_time_pct != null ? `${kpis.on_time_pct}%` : '—'} label={t('Delivered On Time')} />
+                        <Kpi icon="people" value={kpis.clients} label={t('Clients')} />
                     </>
                 ) : (
                     <>
-                        <Kpi icon="💳" value={money(kpis.spent, kpis.currency)} label="Total Spent" />
-                        <Kpi icon="📋" value={kpis.active} label="Active Tasks" />
-                        <Kpi icon="📦" value={kpis.delivered} label={t('Awaiting Approval')} />
-                        <Kpi icon="✅" value={kpis.completed} label="Completed" />
+                        <Kpi icon="card" value={money(kpis.spent, kpis.currency)} label={t('Total Spent')} />
+                        <Kpi icon="list" value={kpis.active} label={t('Active Tasks')} />
+                        <Kpi icon="box" value={kpis.delivered} label={t('Awaiting Approval')} />
+                        <Kpi icon="check" value={kpis.completed} label={t('Completed')} />
                     </>
                 )}
             </div>
