@@ -27,10 +27,18 @@ export default function CallOverlay({ call, partnerName }) {
         <div className="fixed inset-0 z-[80] flex flex-col bg-ink">
             {/* Remote video / avatar */}
             <div className="relative flex flex-1 items-center justify-center overflow-hidden">
-                {state === 'connected' && isVideo ? (
-                    <video ref={remoteRef} autoPlay playsInline className="h-full w-full bg-black object-cover" />
-                ) : (
-                    <div className="flex flex-col items-center gap-4 text-center">
+                {/* Remote media is ALWAYS mounted while the overlay is open so the
+                    other person's AUDIO plays even in a voice-only call (the video
+                    is simply hidden then). */}
+                <video
+                    ref={remoteRef}
+                    autoPlay
+                    playsInline
+                    className={`h-full w-full bg-black object-cover ${state === 'connected' && isVideo ? '' : 'hidden'}`}
+                />
+
+                {!(state === 'connected' && isVideo) && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center">
                         <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gold/20 text-5xl font-black text-gold">
                             {partnerName?.charAt(0)?.toUpperCase() || '?'}
                         </div>
