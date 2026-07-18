@@ -31,7 +31,6 @@ class TaskController extends Controller
         $task = $request->user()->tasks()->create([...$data, 'status' => 'open']);
 
         $freelancer = $this->freelancer();
-        $freelancer?->notify(new TaskPosted($task)); // email
         $freelancer?->notify(new ActivityNotification(
             'task',
             'New task posted',

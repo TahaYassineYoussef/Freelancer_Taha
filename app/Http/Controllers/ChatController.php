@@ -67,7 +67,6 @@ class ChatController extends Controller
             'body' => $data['body'],
         ]);
 
-        $user->notify(new NewChatMessage($message));
         $user->notify(new \App\Notifications\ActivityNotification(
             'message',
             'New message',

@@ -3,12 +3,13 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * A single, reusable in-app (database) notification that powers the bell.
- * Every activity — new task, task accepted/delivered/approved, new message,
- * new review, new contact — creates one of these.
+ * A single, reusable notification that powers BOTH the in-app bell (database)
+ * and an email. Every activity — new task, task accepted/declined/delivered/
+ * approved, changes requested, new message, new review, new contact — creates one.
  */
 class ActivityNotification extends Notification
 {
@@ -32,7 +33,21 @@ class ActivityNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        // Everything lands in the bell. Everything also emails EXCEPT chat
+        // messages — a live conversation would flood the inbox otherwise.
+        return $this->type === 'message'
+            ? ['database']
+            : ['database', 'mail'];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject($this->icon.' '.$this->title)
+            ->greeting($this->title)
+            ->line($this->message)
+            ->action('Open', $this->url)
+            ->line('You can also see this under the bell on your dashboard.');
     }
 
     /**

@@ -27,7 +27,6 @@ class ContactController extends Controller
         $contact = ContactMessage::create($data);
 
         $freelancer = User::where('role', 'freelancer')->first();
-        $freelancer?->notify(new ContactReceived($contact)); // email
         $freelancer?->notify(new \App\Notifications\ActivityNotification(
             'contact',
             'New contact message',
