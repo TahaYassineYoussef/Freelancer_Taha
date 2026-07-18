@@ -1,4 +1,5 @@
 import PanelLayout from '@/Layouts/PanelLayout';
+import useNotifFlash from '@/useNotifFlash';
 import { Head, router } from '@inertiajs/react';
 
 function fmtDate(value) {
@@ -13,6 +14,8 @@ function fmtDate(value) {
 }
 
 export default function ContactMessages({ messages }) {
+    useNotifFlash('contact', 'msg');
+
     const remove = (m) => {
         if (confirm('Delete this message?')) {
             router.delete(route('contact.destroy', m.id), { preserveScroll: true });
@@ -30,7 +33,7 @@ export default function ContactMessages({ messages }) {
             ) : (
                 <div className="space-y-4">
                     {messages.map((m) => (
-                        <div key={m.id} className="rounded-2xl border border-white/5 bg-ink-700 p-6">
+                        <div key={m.id} id={`contact-${m.id}`} className="rounded-2xl border border-white/5 bg-ink-700 p-6">
                             <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="min-w-0">
                                     <div className="flex flex-wrap items-center gap-2">

@@ -2,6 +2,7 @@ import CollectionManager from '@/Components/CollectionManager';
 import ProjectsManager from '@/Components/ProjectsManager';
 import PanelLayout from '@/Layouts/PanelLayout';
 import Photo from '@/Components/Photo';
+import useNotifFlash from '@/useNotifFlash';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -141,6 +142,8 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
 }
 
 function TestimonialsModerator({ testimonials }) {
+    useNotifFlash('review', 'review');
+
     const setApproved = (t, approved) => {
         router.patch(route('testimonials.review', t.id), { approved }, { preserveScroll: true });
     };
@@ -167,7 +170,7 @@ function TestimonialsModerator({ testimonials }) {
             <div className="space-y-3">
                 {testimonials.length === 0 && <p className="text-sm text-gray-500">No reviews yet.</p>}
                 {testimonials.map((t) => (
-                    <div key={t.id} className="rounded-xl border border-white/5 bg-ink-800 p-4">
+                    <div key={t.id} id={`review-${t.id}`} className="rounded-xl border border-white/5 bg-ink-800 p-4">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2">

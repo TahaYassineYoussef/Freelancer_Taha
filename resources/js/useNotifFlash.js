@@ -2,31 +2,39 @@ import { usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 
 /**
- * When a notification deep-links here with ?task=ID, scroll to the element
+ * When a notification deep-links here with ?{param}=ID, scroll to the element
  * `#{prefix}-{ID}` and restart a strong gold flash on it.
  *
- * The bell adds a nonce (?_=timestamp) on every click, so page.url changes each
- * time — this effect re-runs and re-triggers the flash even on repeated clicks
- * of the same notification.
+ * - Reads the live URL (window.location.search), which always reflects the
+ *   current query after an Inertia visit — more reliable than page.url.
+ * - Retries briefly in case the target card hasn't painted yet.
+ * - Depends on page.url so repeated clicks (nonce-busted) re-trigger the flash.
  */
-export default function useNotifFlash(prefix) {
+export default function useNotifFlash(prefix, param = 'task') {
     const page = usePage();
 
     useEffect(() => {
-        const id = new URLSearchParams(page.url.split('?')[1] || '').get('task');
+        const id = new URLSearchParams(window.location.search).get(param);
         if (!id) return;
 
-        const el = document.getElementById(`${prefix}-${id}`);
-        if (!el) return;
+        let tries = 0;
+        let timer;
 
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const run = () => {
+            const el = document.getElementById(`${prefix}-${id}`);
+            if (!el) {
+                if (tries++ < 12) timer = setTimeout(run, 60); // wait for render
+                return;
+            }
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Restart the CSS animation reliably: remove, force reflow, re-add.
+            el.classList.remove('notif-flash');
+            void el.offsetWidth;
+            el.classList.add('notif-flash');
+            timer = setTimeout(() => el.classList.remove('notif-flash'), 1900);
+        };
 
-        // Restart the CSS animation reliably: remove, force reflow, re-add.
-        el.classList.remove('notif-flash');
-        void el.offsetWidth;
-        el.classList.add('notif-flash');
-
-        const t = setTimeout(() => el.classList.remove('notif-flash'), 1900);
-        return () => clearTimeout(t);
+        run();
+        return () => clearTimeout(timer);
     }, [page.url]);
 }

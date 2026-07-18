@@ -32,7 +32,7 @@ class ContactController extends Controller
             'contact',
             'New contact message',
             "{$contact->name}: ".\Illuminate\Support\Str::limit($contact->body, 60),
-            route('contact.index'),
+            route('contact.index', ['msg' => $contact->id]),
             '✉️',
         ));
 
