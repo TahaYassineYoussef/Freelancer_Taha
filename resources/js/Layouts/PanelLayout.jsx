@@ -14,6 +14,7 @@ const ICONS = {
     doc: 'M7 3h7l4 4v14H7zM14 3v4h4',
     revise: 'M4 4v6h6M20 20v-6h-6M20 8a8 8 0 00-14.9-2M4 16a8 8 0 0014.9 2',
     box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+    star: 'M12 2l3 6.5 7 .9-5 4.9 1.2 7L12 18l-6.4 3.3 1.2-7-5-4.9 7-.9z',
 };
 
 function NavIcon({ d }) {
@@ -70,6 +71,8 @@ export default function PanelLayout({ title, children }) {
             {isFreelancer && (
                 <>
                     <NavItem href={route('payments.index')} icon={ICONS.cash} active={current?.startsWith('payments')} onClick={close}>Payments</NavItem>
+                    <NavItem href={route('work.index')} icon={ICONS.box} active={current?.startsWith('work')} onClick={close}>Deliveries</NavItem>
+                    <NavItem href={route('reviews.index')} icon={ICONS.star} active={current?.startsWith('reviews')} onClick={close}>Reviews</NavItem>
                     <NavItem href={route('payment.settings')} icon={ICONS.wallet} active={current?.startsWith('payment.settings')} onClick={close}>Get Paid</NavItem>
                     <NavItem href={route('revisions.index')} icon={ICONS.revise} active={current?.startsWith('revisions')} badge={pendingRevisions} onClick={close}>Revisions</NavItem>
                     <NavItem href={route('contact.index')} icon={ICONS.mail} active={current?.startsWith('contact')} onClick={close}>Inbox</NavItem>

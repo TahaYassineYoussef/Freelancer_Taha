@@ -128,8 +128,13 @@ class TaskController extends Controller
 
         $task->update(['status' => 'completed']);
 
-        $this->notify($this->freelancer(), $task, 'task', 'Delivery approved',
-            "{$task->user->name} approved “{$task->title}”. 🎉", '🎉');
+        $this->freelancer()?->notify(new ActivityNotification(
+            'task',
+            'Delivery approved',
+            "{$task->user->name} approved “{$task->title}”. 🎉",
+            route('work.index', ['task' => $task->id]),
+            '🎉',
+        ));
 
         return back()->with('success', 'Delivery approved. Thank you!');
     }

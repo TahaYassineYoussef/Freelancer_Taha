@@ -32,7 +32,7 @@ class TestimonialController extends Controller
                 'review',
                 'New review',
                 "{$request->user()->name} left a {$data['rating']}★ review — approve it to publish.",
-                route('cv.edit', ['review' => $request->user()->testimonials()->latest()->first()?->id]),
+                route('reviews.index', ['review' => $request->user()->testimonials()->latest()->first()?->id]),
                 '⭐',
             )
         );

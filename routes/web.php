@@ -11,7 +11,9 @@ use App\Http\Controllers\ModerationLogController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentSettingsController;
+use App\Http\Controllers\ReviewModerationController;
 use App\Http\Controllers\RevisionController;
+use App\Http\Controllers\WorkController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
@@ -86,6 +88,12 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/contact-messages', [ContactController::class, 'index'])->name('contact.index');
         Route::delete('/contact-messages/{contactMessage}', [ContactController::class, 'destroy'])->name('contact.destroy');
+
+        // Freelancer's delivery workspace
+        Route::get('/work', [WorkController::class, 'index'])->name('work.index');
+
+        // Review moderation
+        Route::get('/reviews', [ReviewModerationController::class, 'index'])->name('reviews.index');
 
         // Pending client change requests
         Route::get('/revisions', [RevisionController::class, 'index'])->name('revisions.index');
