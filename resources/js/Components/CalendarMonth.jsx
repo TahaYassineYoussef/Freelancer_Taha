@@ -1,3 +1,4 @@
+import { useT } from '@/i18n';
 import { useState } from 'react';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -24,6 +25,7 @@ function todayStr() {
  * `initialDate` (a 'YYYY-MM-DD' string) sets which month opens first.
  */
 export default function CalendarMonth({ renderDay, initialDate }) {
+    const t = useT();
     const start = initialDate ? new Date(initialDate + 'T00:00:00') : new Date();
     const [view, setView] = useState({ year: start.getFullYear(), month: start.getMonth() });
 
@@ -60,14 +62,14 @@ export default function CalendarMonth({ renderDay, initialDate }) {
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </button>
                 </div>
-                <h3 className="text-lg font-black text-white">{MONTHS[view.month]} {view.year}</h3>
-                <button onClick={goToday} className="rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold text-gray-200 hover:border-gold hover:text-gold">Today</button>
+                <h3 className="text-lg font-black text-white">{t(MONTHS[view.month])} {view.year}</h3>
+                <button onClick={goToday} className="rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold text-gray-200 hover:border-gold hover:text-gold">{t('Today')}</button>
             </div>
 
             {/* Weekday row */}
             <div className="grid grid-cols-7 border-b border-white/10 bg-ink-800">
                 {WEEKDAYS.map((w) => (
-                    <div key={w} className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-400">{w}</div>
+                    <div key={w} className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-400">{t(w)}</div>
                 ))}
             </div>
 
