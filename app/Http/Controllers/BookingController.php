@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\DateAvailability;
 use App\Models\User;
 use App\Notifications\ActivityNotification;
 use App\Rules\CleanText;
@@ -132,11 +133,23 @@ class BookingController extends Controller
                 'is_past' => $b->starts_at->isPast(),
             ]);
 
+        $freelancer = Auth::user();
+
         return Inertia::render('Bookings', [
             'bookings' => $bookings,
             'counts' => [
                 'pending' => $bookings->where('status', 'pending')->count(),
                 'confirmed' => $bookings->where('status', 'confirmed')->count(),
+            ],
+            'availability' => [
+                'weekly' => AvailabilityController::schedule($freelancer),
+                'dates' => $this->dateOverrides($freelancer)
+                    ->map(fn (DateAvailability $o) => [
+                        'date' => $o->date->toDateString(),
+                        'is_open' => $o->is_open,
+                        'start_time' => $o->start_time,
+                        'end_time' => $o->end_time,
+                    ])->values(),
             ],
         ]);
     }
@@ -194,13 +207,8 @@ class BookingController extends Controller
             return [];
         }
 
-        // Weekday => [start, end] for open days only.
-        $hours = [];
-        foreach (AvailabilityController::schedule($freelancer) as $row) {
-            if ($row['is_open']) {
-                $hours[$row['day']] = [$row['start_time'], $row['end_time']];
-            }
-        }
+        $weekly = $this->weeklyHours($freelancer);
+        $overrides = $this->dateOverrides($freelancer);
 
         $taken = $this->takenSlots();
         $now = Carbon::now();
@@ -208,13 +216,13 @@ class BookingController extends Controller
 
         for ($i = 0; $i < self::HORIZON_DAYS; $i++) {
             $date = $now->copy()->startOfDay()->addDays($i);
-            $dow = (int) $date->format('w'); // 0 = Sun … 6 = Sat
 
-            if (! isset($hours[$dow])) {
+            $window = $this->hoursForDate($weekly, $overrides, $date);
+            if (! $window) {
                 continue;
             }
 
-            [$start, $end] = $hours[$dow];
+            [$start, $end] = $window;
             [$sh, $sm] = array_map('intval', explode(':', $start));
             [$eh, $em] = array_map('intval', explode(':', $end));
 
@@ -280,14 +288,56 @@ class BookingController extends Controller
             return false;
         }
 
+        $window = $this->hoursForDate($this->weeklyHours($freelancer), $this->dateOverrides($freelancer), $starts);
+        if (! $window) {
+            return false;
+        }
+
+        [$start, $end] = $window;
+
+        return $starts->format('H:i') >= $start && $starts->format('H:i') < $end;
+    }
+
+    /**
+     * Weekday (0–6) => [start, end] for open days in the weekly pattern.
+     */
+    private function weeklyHours(User $freelancer): array
+    {
+        $hours = [];
         foreach (AvailabilityController::schedule($freelancer) as $row) {
-            if ($row['day'] === (int) $starts->format('w') && $row['is_open']) {
-                return $starts->format('H:i') >= $row['start_time']
-                    && $starts->format('H:i') < $row['end_time'];
+            if ($row['is_open']) {
+                $hours[$row['day']] = [$row['start_time'], $row['end_time']];
             }
         }
 
-        return false;
+        return $hours;
+    }
+
+    /**
+     * Per-date overrides keyed by 'Y-m-d'.
+     */
+    private function dateOverrides(User $freelancer)
+    {
+        return DateAvailability::where('user_id', $freelancer->id)
+            ->get()
+            ->keyBy(fn (DateAvailability $o) => $o->date->toDateString());
+    }
+
+    /**
+     * Effective [start, end] window for a date, or null if closed. A date
+     * override wins over the weekly pattern.
+     */
+    private function hoursForDate(array $weekly, $overrides, Carbon $date): ?array
+    {
+        $key = $date->toDateString();
+
+        if ($overrides->has($key)) {
+            $o = $overrides->get($key);
+
+            return $o->is_open ? [$o->start_time, $o->end_time] : null;
+        }
+
+        return $weekly[(int) $date->format('w')] ?? null;
     }
 
     private function clientView(Booking $b): array

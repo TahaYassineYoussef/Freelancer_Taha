@@ -50,9 +50,12 @@ class ChatController extends Controller
 
         $this->markRead($me->id, $user->id);
 
-        // Drain signals addressed to me from this partner (consume-once).
+        // Drain only typing pings from this partner (consume-once). Call signals
+        // (offer/answer/ice/…) are handled globally by CallController so a user
+        // is rung on any page, not just this open conversation.
         $signals = Signal::where('to_id', $me->id)
             ->where('from_id', $user->id)
+            ->where('kind', 'typing')
             ->orderBy('id')
             ->get(['id', 'kind', 'payload']);
 
@@ -134,14 +137,12 @@ class ChatController extends Controller
         $this->assertCanChat($me, $user);
 
         $data = $request->validate([
-            'kind' => ['required', 'string', 'in:typing,offer,answer,ice,decline,hangup'],
+            'kind' => ['required', 'string', 'in:typing'],
             'payload' => ['nullable', 'string'],
         ]);
 
         // Typing pings are noisy; keep only the latest per sender/receiver.
-        if ($data['kind'] === 'typing') {
-            Signal::where('from_id', $me->id)->where('to_id', $user->id)->where('kind', 'typing')->delete();
-        }
+        Signal::where('from_id', $me->id)->where('to_id', $user->id)->where('kind', 'typing')->delete();
 
         Signal::create([
             'from_id' => $me->id,

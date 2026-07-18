@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CallController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ClientTaskController;
 use App\Http\Controllers\ContactController;
@@ -85,6 +86,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/chat/{user}/messages', [ChatController::class, 'store'])->name('chat.store');
     Route::post('/chat/{user}/signal', [ChatController::class, 'signal'])->name('chat.signal');
 
+    // Global call signalling (polled on every page so you're rung anywhere)
+    Route::get('/calls/poll', [CallController::class, 'poll'])->name('calls.poll');
+    Route::post('/calls/signal', [CallController::class, 'signal'])->name('calls.signal');
+
     // Testimonials: clients submit, freelancer moderates
     Route::post('/testimonials', [TestimonialController::class, 'store'])
         ->middleware('throttle:5,60') // anti-spam: max 5 reviews per hour
@@ -120,6 +125,9 @@ Route::middleware('auth')->group(function () {
         // Weekly availability (working hours) + booking management
         Route::get('/availability', [AvailabilityController::class, 'edit'])->name('availability.edit');
         Route::post('/availability', [AvailabilityController::class, 'update'])->name('availability.update');
+        Route::post('/availability/date', [AvailabilityController::class, 'storeDate'])->name('availability.date.store');
+        Route::delete('/availability/date/{date}', [AvailabilityController::class, 'destroyDate'])
+            ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}')->name('availability.date.destroy');
         Route::get('/bookings', [BookingController::class, 'manage'])->name('bookings.index');
         Route::patch('/bookings/{booking}/confirm', [BookingController::class, 'confirm'])->name('bookings.confirm');
         Route::patch('/bookings/{booking}/decline', [BookingController::class, 'decline'])->name('bookings.decline');

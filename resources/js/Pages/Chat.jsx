@@ -1,7 +1,6 @@
 import PanelLayout from '@/Layouts/PanelLayout';
 import Photo from '@/Components/Photo';
-import CallOverlay from '@/Components/CallOverlay';
-import useCall from '@/useCall';
+import { useCallContext } from '@/CallProvider';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -14,6 +13,28 @@ function fmtTime(value) {
 
 function isImage(mime) {
     return typeof mime === 'string' && mime.startsWith('image/');
+}
+
+/**
+ * Voice/video call buttons. Kept as its own component so its useCallContext()
+ * runs INSIDE the CallProvider (which lives in PanelLayout, below this page).
+ */
+function CallButtons({ partner }) {
+    const ctx = useCallContext();
+    if (!ctx || !partner) return null;
+    const { startCall } = ctx;
+    return (
+        <>
+            <button onClick={() => startCall(partner.id, partner.name, false)} title="Voice call"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-gray-300 transition hover:bg-white/10 hover:text-gold">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 5a2 2 0 012-2h2.5a1 1 0 011 .76l1 4a1 1 0 01-.29.95l-1.7 1.7a13 13 0 006.1 6.1l1.7-1.7a1 1 0 01.95-.29l4 1a1 1 0 01.76 1V19a2 2 0 01-2 2A16 16 0 013 5z" /></svg>
+            </button>
+            <button onClick={() => startCall(partner.id, partner.name, true)} title="Video call"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-gray-300 transition hover:bg-white/10 hover:text-gold">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 10l4.55-2.28A1 1 0 0121 8.6v6.8a1 1 0 01-1.45.89L15 14v1a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2h8a2 2 0 012 2z" /></svg>
+            </button>
+        </>
+    );
 }
 
 function Attachment({ url, name, mime, mine }) {
@@ -57,26 +78,13 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
     const typingClear = useRef(null);
     const lastTypingSent = useRef(0);
 
-    // Send a real-time signal (typing / call handshake) to the current partner.
-    const sendSignal = (kind, payload = null) => {
-        if (!selectedPartner) return;
-        window.axios.post(route('chat.signal', selectedPartner.id), { kind, payload }).catch(() => {});
-    };
-
-    const call = useCall({ sendSignal });
-    const callActive = call.state !== 'idle';
-
-    // Route each polled signal: typing → indicator, everything else → the call.
-    // A ref keeps this pointing at the latest closure so the poll never goes stale.
-    const dispatchRef = useRef(() => {});
-    dispatchRef.current = (s) => {
-        if (s.kind === 'typing') {
-            setPartnerTyping(true);
-            clearTimeout(typingClear.current);
-            typingClear.current = setTimeout(() => setPartnerTyping(false), 2500);
-        } else {
-            call.handleSignal(s);
-        }
+    // Show the typing indicator when a typing ping arrives from the poll. A ref
+    // keeps this fresh so the interval closure never goes stale.
+    const showTypingRef = useRef(() => {});
+    showTypingRef.current = () => {
+        setPartnerTyping(true);
+        clearTimeout(typingClear.current);
+        typingClear.current = setTimeout(() => setPartnerTyping(false), 2500);
     };
 
     // Reset the thread whenever a different conversation is opened.
@@ -87,8 +95,7 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
         setBody('');
     }, [selectedPartner?.id]);
 
-    // Poll for new messages + real-time signals. Polls faster during a call so
-    // the offer/answer/ICE handshake connects quickly.
+    // Poll ~1.2s for new messages + typing pings for the open conversation.
     useEffect(() => {
         if (!selectedPartner) return;
         const tick = () => {
@@ -96,13 +103,13 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
                 .get(route('chat.poll', selectedPartner.id))
                 .then((res) => {
                     setMessages(res.data.messages);
-                    (res.data.signals || []).forEach((s) => dispatchRef.current(s));
+                    if ((res.data.signals || []).some((s) => s.kind === 'typing')) showTypingRef.current();
                 })
                 .catch(() => {});
         };
-        const id = setInterval(tick, callActive ? 600 : 1200);
+        const id = setInterval(tick, 1200);
         return () => clearInterval(id);
-    }, [selectedPartner?.id, callActive]);
+    }, [selectedPartner?.id]);
 
     // Auto-scroll to the newest message / typing bubble.
     useEffect(() => {
@@ -201,14 +208,7 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
                                     <p className="truncate font-semibold text-white">{selectedPartner.name}</p>
                                     <p className="text-xs capitalize text-gray-500">{partnerTyping ? <span className="text-gold">typing…</span> : selectedPartner.role}</p>
                                 </div>
-                                <button onClick={() => call.startCall(false)} disabled={callActive} title="Voice call"
-                                    className="flex h-10 w-10 items-center justify-center rounded-full text-gray-300 transition hover:bg-white/10 hover:text-gold disabled:opacity-40">
-                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 5a2 2 0 012-2h2.5a1 1 0 011 .76l1 4a1 1 0 01-.29.95l-1.7 1.7a13 13 0 006.1 6.1l1.7-1.7a1 1 0 01.95-.29l4 1a1 1 0 01.76 1V19a2 2 0 01-2 2A16 16 0 013 5z" /></svg>
-                                </button>
-                                <button onClick={() => call.startCall(true)} disabled={callActive} title="Video call"
-                                    className="flex h-10 w-10 items-center justify-center rounded-full text-gray-300 transition hover:bg-white/10 hover:text-gold disabled:opacity-40">
-                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 10l4.55-2.28A1 1 0 0121 8.6v6.8a1 1 0 01-1.45.89L15 14v1a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2h8a2 2 0 012 2z" /></svg>
-                                </button>
+                                <CallButtons partner={selectedPartner} />
                             </div>
 
                             <div className="flex-1 space-y-1.5 overflow-y-auto px-5 py-4">
@@ -280,8 +280,6 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
                     )}
                 </section>
             </div>
-
-            <CallOverlay call={call} partnerName={selectedPartner?.name} />
         </PanelLayout>
     );
 }

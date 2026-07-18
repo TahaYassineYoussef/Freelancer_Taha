@@ -21,7 +21,56 @@ const ICE_SERVERS = [
     { urls: 'stun:stun1.l.google.com:19302' },
 ];
 
-export default function useCall({ sendSignal }) {
+/**
+ * A simple ringtone built with the Web Audio API (no asset needed). Returns a
+ * stop function. `incoming` uses a two-tone ring; outgoing uses a soft ringback.
+ * Note: browsers may block audio until the user has interacted with the page —
+ * the on-screen call UI always appears regardless.
+ */
+function startRinging(incoming) {
+    let ctx;
+    try {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        ctx.resume?.();
+    } catch {
+        return () => {};
+    }
+    let stopped = false;
+
+    const tone = (freq, start, dur, vol) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = freq;
+        o.connect(g);
+        g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+        g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + start + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
+        o.start(ctx.currentTime + start);
+        o.stop(ctx.currentTime + start + dur + 0.02);
+    };
+
+    const ring = () => {
+        if (stopped) return;
+        if (incoming) {
+            tone(480, 0, 0.4, 0.22);
+            tone(620, 0.45, 0.4, 0.22);
+        } else {
+            tone(420, 0, 0.5, 0.1);
+        }
+    };
+
+    ring();
+    const id = setInterval(ring, incoming ? 2400 : 3200);
+    return () => {
+        stopped = true;
+        clearInterval(id);
+        try { ctx.close(); } catch { /* noop */ }
+    };
+}
+
+export default function useCall({ sendSignal, onEnd }) {
     const [state, setState] = useState('idle'); // idle | calling | incoming | connected
     const [callType, setCallType] = useState('video'); // video | audio
     const [muted, setMuted] = useState(false);
@@ -41,6 +90,13 @@ export default function useCall({ sendSignal }) {
         setSeconds(0);
         const id = setInterval(() => setSeconds((s) => s + 1), 1000);
         return () => clearInterval(id);
+    }, [state]);
+
+    // Ring while calling out or receiving.
+    useEffect(() => {
+        if (state !== 'calling' && state !== 'incoming') return;
+        const stop = startRinging(state === 'incoming');
+        return () => stop();
     }, [state]);
 
     const attachStream = (ref, stream) => {
@@ -96,6 +152,7 @@ export default function useCall({ sendSignal }) {
         setMuted(false);
         setCamOff(false);
         setState('idle');
+        onEnd?.();
     };
 
     // --- Public actions ------------------------------------------------------

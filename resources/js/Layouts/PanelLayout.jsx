@@ -1,3 +1,4 @@
+import CallProvider from '@/CallProvider';
 import NotificationBell from '@/Components/NotificationBell';
 import Photo from '@/Components/Photo';
 import { Link, usePage } from '@inertiajs/react';
@@ -96,6 +97,7 @@ export default function PanelLayout({ title, children }) {
     );
 
     return (
+        <CallProvider>
         <div className="min-h-screen bg-ink text-white lg:flex">
             {/* Sidebar */}
             <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-white/5 bg-ink-800 transition-transform lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -158,5 +160,6 @@ export default function PanelLayout({ title, children }) {
                 <main className="flex-1 px-5 py-6 sm:px-8">{children}</main>
             </div>
         </div>
+        </CallProvider>
     );
 }

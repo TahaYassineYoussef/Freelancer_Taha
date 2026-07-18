@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Availability;
+use App\Models\DateAvailability;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -78,5 +79,44 @@ class AvailabilityController extends Controller
         }
 
         return back()->with('success', 'Your availability has been saved.');
+    }
+
+    /**
+     * Set (or update) availability for one specific date — an override that wins
+     * over the weekly pattern for that day only.
+     */
+    public function storeDate(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'date' => ['required', 'date', 'after_or_equal:today'],
+            'is_open' => ['required', 'boolean'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_time' => ['required', 'date_format:H:i'],
+        ]);
+
+        if ($data['is_open'] && $data['end_time'] <= $data['start_time']) {
+            return back()->withErrors(['end_time' => 'Closing time must be after opening time.']);
+        }
+
+        DateAvailability::updateOrCreate(
+            ['user_id' => Auth::id(), 'date' => $data['date']],
+            [
+                'is_open' => $data['is_open'],
+                'start_time' => $data['start_time'],
+                'end_time' => $data['end_time'],
+            ],
+        );
+
+        return back()->with('success', 'Availability updated for '.$data['date'].'.');
+    }
+
+    /**
+     * Remove a date override, reverting that day to the weekly pattern.
+     */
+    public function destroyDate(string $date): RedirectResponse
+    {
+        DateAvailability::where('user_id', Auth::id())->where('date', $date)->delete();
+
+        return back()->with('success', 'Reverted to your weekly hours for that day.');
     }
 }

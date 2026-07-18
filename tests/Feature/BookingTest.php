@@ -123,6 +123,54 @@ class BookingTest extends TestCase
         $this->assertDatabaseHas('bookings', ['id' => $booking->id, 'status' => 'confirmed']);
     }
 
+    public function test_freelancer_can_open_a_normally_closed_date(): void
+    {
+        $freelancer = $this->freelancer();
+        $client = $this->client();
+
+        // Sundays are closed by default. Open the next Sunday 10:00–12:00.
+        $sunday = $this->nextSlot(0, 10);
+
+        $this->actingAs($freelancer)->post('/availability/date', [
+            'date' => $sunday->toDateString(),
+            'is_open' => true,
+            'start_time' => '10:00',
+            'end_time' => '12:00',
+        ])->assertRedirect();
+
+        $this->assertSame(1, \App\Models\DateAvailability::where('user_id', $freelancer->id)->where('is_open', true)->count());
+
+        // The client can now book that Sunday slot.
+        $this->actingAs($client)->post('/booking', [
+            'starts_at' => $sunday->toIso8601String(),
+            'topic' => 'Weekend catch-up',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('bookings', ['user_id' => $client->id, 'topic' => 'Weekend catch-up', 'status' => 'pending']);
+    }
+
+    public function test_freelancer_can_mark_a_normally_open_date_as_off(): void
+    {
+        $freelancer = $this->freelancer();
+        $client = $this->client();
+
+        // Monday is open by default; mark the next Monday as a day off.
+        $monday = $this->nextSlot(1, 10);
+
+        $this->actingAs($freelancer)->post('/availability/date', [
+            'date' => $monday->toDateString(),
+            'is_open' => false,
+            'start_time' => '09:00',
+            'end_time' => '17:00',
+        ])->assertRedirect();
+
+        // Booking that Monday is now rejected.
+        $this->actingAs($client)->post('/booking', [
+            'starts_at' => $monday->toIso8601String(),
+            'topic' => 'Should be blocked',
+        ])->assertSessionHasErrors('starts_at');
+    }
+
     public function test_client_cannot_manage_bookings(): void
     {
         $this->freelancer();
