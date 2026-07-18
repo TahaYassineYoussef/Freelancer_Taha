@@ -1,4 +1,6 @@
 import Photo from '@/Components/Photo';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
+import { useApplyDirection, useT } from '@/i18n';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
@@ -36,6 +38,7 @@ function range(start, end, current) {
 
 function Navbar({ user }) {
     const [open, setOpen] = useState(false);
+    const t = useT();
 
     return (
         <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-ink/80 backdrop-blur">
@@ -51,7 +54,7 @@ function Navbar({ user }) {
                             href={item.href}
                             className="text-sm font-medium text-gray-300 transition hover:text-gold"
                         >
-                            {item.label}
+                            {t(item.label)}
                         </a>
                     ))}
                     {user ? (
@@ -59,21 +62,22 @@ function Navbar({ user }) {
                             href={route('dashboard')}
                             className="rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ink transition hover:bg-gold-300"
                         >
-                            Dashboard
+                            {t('Dashboard')}
                         </Link>
                     ) : (
                         <div className="flex items-center gap-3">
                             <Link href={route('login')} className="text-sm font-medium text-gray-300 hover:text-gold">
-                                Login
+                                {t('Login')}
                             </Link>
                             <Link
                                 href={route('register')}
                                 className="rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ink transition hover:bg-gold-300"
                             >
-                                Sign up
+                                {t('Sign up')}
                             </Link>
                         </div>
                     )}
+                    <LanguageSwitcher />
                 </div>
 
                 <button
@@ -96,24 +100,25 @@ function Navbar({ user }) {
                             onClick={() => setOpen(false)}
                             className="block py-2 text-sm text-gray-300 hover:text-gold"
                         >
-                            {item.label}
+                            {t(item.label)}
                         </a>
                     ))}
-                    <div className="mt-2 flex gap-3">
+                    <div className="mt-2 flex items-center gap-3">
                         {user ? (
                             <Link href={route('dashboard')} className="rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ink">
-                                Dashboard
+                                {t('Dashboard')}
                             </Link>
                         ) : (
                             <>
                                 <Link href={route('login')} className="rounded-full border border-white/20 px-4 py-2 text-sm text-white">
-                                    Login
+                                    {t('Login')}
                                 </Link>
                                 <Link href={route('register')} className="rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ink">
-                                    Sign up
+                                    {t('Sign up')}
                                 </Link>
                             </>
                         )}
+                        <LanguageSwitcher />
                     </div>
                 </div>
             )}
@@ -122,9 +127,11 @@ function Navbar({ user }) {
 }
 
 function SectionTitle({ children, ghost }) {
+    const t = useT();
+    const content = typeof children === 'string' ? t(children) : children;
     return (
         <div className="relative mb-10">
-            <h2 className="relative z-10 text-3xl font-extrabold text-white sm:text-4xl">{children}</h2>
+            <h2 className="relative z-10 text-3xl font-extrabold text-white sm:text-4xl">{content}</h2>
             {ghost && (
                 <span className="pointer-events-none absolute -bottom-4 left-0 select-none text-5xl font-black text-white/5 sm:text-6xl">
                     {ghost}
@@ -136,13 +143,14 @@ function SectionTitle({ children, ghost }) {
 }
 
 function Hero({ freelancer, user }) {
+    const t = useT();
     return (
         <section id="home" className="relative overflow-hidden pt-28">
             <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 md:grid-cols-2 md:py-24">
                 <div>
-                    <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-gold">Hello!</p>
+                    <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-gold">{t('Hello!')}</p>
                     <h1 className="text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
-                        I'm <span className="text-gold">Taha Yassine</span>
+                        {t("I'm")} <span className="text-gold">Taha Yassine</span>
                         <br />
                         Youssef
                     </h1>
@@ -155,13 +163,13 @@ function Hero({ freelancer, user }) {
                             href="#tasks"
                             className="rounded-full bg-gold px-7 py-3 text-sm font-bold uppercase tracking-wide text-ink shadow-lg shadow-gold/20 transition hover:bg-gold-300"
                         >
-                            Hire Me
+                            {t('Hire Me')}
                         </a>
                         <a
                             href="#projects"
                             className="rounded-full border border-white/20 px-7 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:border-gold hover:text-gold"
                         >
-                            My Works
+                            {t('My Works')}
                         </a>
                         <a
                             href={route('cv.download')}
@@ -170,7 +178,7 @@ function Hero({ freelancer, user }) {
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
                             </svg>
-                            Download CV
+                            {t('Download CV')}
                         </a>
                     </div>
                 </div>
@@ -630,14 +638,15 @@ function Field({ label, error, children }) {
 }
 
 function Contact({ user, freelancer }) {
+    const t = useT();
     return (
         <section id="contact" className="border-t border-white/5 py-20">
             <div className="mx-auto max-w-3xl px-6 text-center">
                 <SectionTitle ghost="Talk">
-                    <span className="block text-center">Let's Talk</span>
+                    <span className="block text-center">{t("Let's Talk")}</span>
                 </SectionTitle>
                 <p className="mx-auto mb-8 max-w-xl text-gray-300">
-                    Connect with Taha directly through live chat to discuss your project.
+                    {t('Connect with Taha directly through live chat to discuss your project.')}
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
                     {user ? (
@@ -645,14 +654,14 @@ function Contact({ user, freelancer }) {
                             href={route('chat.index')}
                             className="rounded-full bg-gold px-8 py-3 text-sm font-bold uppercase tracking-wide text-ink transition hover:bg-gold-300"
                         >
-                            Open Chat
+                            {t('Open Chat')}
                         </Link>
                     ) : (
                         <Link
                             href={route('login')}
                             className="rounded-full bg-gold px-8 py-3 text-sm font-bold uppercase tracking-wide text-ink transition hover:bg-gold-300"
                         >
-                            Log in to Chat
+                            {t('Log in to Chat')}
                         </Link>
                     )}
                     {freelancer?.email && (
@@ -660,7 +669,7 @@ function Contact({ user, freelancer }) {
                             href={`mailto:${freelancer.email}`}
                             className="rounded-full border border-white/20 px-8 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:border-gold hover:text-gold"
                         >
-                            Email Me
+                            {t('Email Me')}
                         </a>
                     )}
                 </div>
@@ -761,6 +770,7 @@ function Testimonials({ testimonials, user }) {
 }
 
 function ContactForm() {
+    const t = useT();
     const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm({
         name: '',
         email: '',
@@ -775,32 +785,32 @@ function ContactForm() {
 
     return (
         <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-white/5 bg-ink-700 p-6 text-left">
-            <h3 className="mb-1 font-bold text-white">Send a message</h3>
-            <p className="mb-5 text-sm text-gray-400">No account needed — Taha will reply to your email.</p>
+            <h3 className="mb-1 font-bold text-white">{t('Send a message')}</h3>
+            <p className="mb-5 text-sm text-gray-400">{t('No account needed — Taha will reply to your email.')}</p>
 
             {wasSuccessful && (
                 <p className="mb-4 rounded-lg bg-green-500/10 px-4 py-2 text-sm text-green-400">
-                    Thanks for reaching out! Taha will get back to you soon.
+                    {t('Thanks for reaching out! Taha will get back to you soon.')}
                 </p>
             )}
 
             <form onSubmit={submit} className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Your name" error={errors.name}>
+                    <Field label={t('Your name')} error={errors.name}>
                         <input type="text" value={data.name} onChange={(e) => setData('name', e.target.value)} className={inputCls} />
                     </Field>
-                    <Field label="Your email" error={errors.email}>
+                    <Field label={t('Your email')} error={errors.email}>
                         <input type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} className={inputCls} />
                     </Field>
                 </div>
-                <Field label="Subject" error={errors.subject}>
-                    <input type="text" value={data.subject} onChange={(e) => setData('subject', e.target.value)} className={inputCls} placeholder="What is it about?" />
+                <Field label={t('Subject')} error={errors.subject}>
+                    <input type="text" value={data.subject} onChange={(e) => setData('subject', e.target.value)} className={inputCls} placeholder={t('What is it about?')} />
                 </Field>
-                <Field label="Message" error={errors.body}>
+                <Field label={t('Message')} error={errors.body}>
                     <textarea rows={4} value={data.body} onChange={(e) => setData('body', e.target.value)} className={inputCls} />
                 </Field>
                 <button type="submit" disabled={processing} className="rounded-full bg-gold px-8 py-2.5 text-sm font-bold uppercase text-ink transition hover:bg-gold-300 disabled:opacity-60">
-                    {processing ? 'Sending…' : 'Send message'}
+                    {processing ? t('Sending…') : t('Send message')}
                 </button>
             </form>
         </div>
@@ -809,6 +819,7 @@ function ContactForm() {
 
 export default function Home({ freelancer, testimonials }) {
     const { auth, flash } = usePage().props;
+    useApplyDirection();
     const user = auth?.user;
     const [toast, setToast] = useState(flash?.success);
 

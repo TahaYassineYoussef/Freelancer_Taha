@@ -27,6 +27,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Switch interface language (en / fr / ar) — public, remembered in session
+Route::post('/locale/{locale}', [\App\Http\Controllers\LocaleController::class, 'update'])->name('locale.update');
+
 // Public: download Taha's CV as PDF + guest contact form
 Route::get('/cv/download', [CvPdfController::class, 'download'])->name('cv.download');
 Route::post('/contact', [ContactController::class, 'store'])

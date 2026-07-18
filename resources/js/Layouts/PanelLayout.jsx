@@ -1,6 +1,8 @@
 import CallProvider from '@/CallProvider';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import NotificationBell from '@/Components/NotificationBell';
 import Photo from '@/Components/Photo';
+import { useApplyDirection } from '@/i18n';
 import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -65,6 +67,8 @@ export default function PanelLayout({ title, children }) {
     const [open, setOpen] = useState(false);
 
     const close = () => setOpen(false);
+
+    useApplyDirection();
 
     // Keep the whole dashboard live: silently refresh the current page's data
     // and the shared notifications/badges every few seconds — no manual reload.
@@ -159,6 +163,7 @@ export default function PanelLayout({ title, children }) {
                         </div>
 
                         <div className="flex items-center gap-3">
+                            <LanguageSwitcher />
                             <NotificationBell />
                             <div className="flex items-center gap-2">
                                 <Photo

@@ -69,7 +69,29 @@ class HandleInertiaRequests extends Middleware
                 'currency' => config('services.paypal.currency', 'USD'),
             ],
             'd17' => fn () => $this->d17Details(),
+            'locale' => app()->getLocale(),
+            'dir' => app()->getLocale() === 'ar' ? 'rtl' : 'ltr',
+            'translations' => fn () => $this->translations(),
         ];
+    }
+
+    /**
+     * The active locale's messages, layered over English so any untranslated
+     * key still shows readable text.
+     *
+     * @return array<string, string>
+     */
+    private function translations(): array
+    {
+        $load = function (string $locale): array {
+            $path = base_path("lang/{$locale}.json");
+
+            return is_file($path)
+                ? (json_decode((string) file_get_contents($path), true) ?: [])
+                : [];
+        };
+
+        return array_merge($load('en'), $load(app()->getLocale()));
     }
 
     /**
