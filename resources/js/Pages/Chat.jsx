@@ -1,6 +1,7 @@
 import PanelLayout from '@/Layouts/PanelLayout';
 import Photo from '@/Components/Photo';
 import { useCallContext } from '@/CallProvider';
+import { useT } from '@/i18n';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -90,6 +91,7 @@ function Attachment({ url, name, mime, mine }) {
 export default function Chat({ partners, selectedPartner, messages: initialMessages }) {
     const { auth } = usePage().props;
     const meId = auth.user.id;
+    const t = useT();
 
     const [messages, setMessages] = useState(initialMessages ?? []);
     const [body, setBody] = useState('');
@@ -201,9 +203,9 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
             <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
                 {/* Conversation list */}
                 <aside className="rounded-2xl border border-white/5 bg-ink-700 p-3">
-                    <h2 className="px-3 py-2 text-sm font-semibold uppercase tracking-wide text-gray-400">Conversations</h2>
+                    <h2 className="px-3 py-2 text-sm font-semibold uppercase tracking-wide text-gray-400">{t('Conversations')}</h2>
                     <div className="space-y-1">
-                        {partners.length === 0 && <p className="px-3 py-4 text-sm text-gray-500">No conversations yet.</p>}
+                        {partners.length === 0 && <p className="px-3 py-4 text-sm text-gray-500">{t('No conversations yet.')}</p>}
                         {partners.map((p) => {
                             const active = selectedPartner?.id === p.id;
                             return (
@@ -222,7 +224,7 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className={`truncate text-sm ${p.unread > 0 ? 'font-bold text-white' : 'font-semibold'} ${active ? 'text-gold' : p.unread > 0 ? 'text-white' : 'text-white'}`}>{p.name}</p>
-                                        <p className="truncate text-xs capitalize text-gray-500">{p.unread > 0 ? <span className="font-semibold text-gold">New message</span> : p.role}</p>
+                                        <p className="truncate text-xs capitalize text-gray-500">{p.unread > 0 ? <span className="font-semibold text-gold">{t('New message')}</span> : p.role}</p>
                                     </div>
                                     {p.unread > 0 && <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-gold" />}
                                 </button>
@@ -245,7 +247,7 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
                             </div>
 
                             <div className="flex-1 space-y-1.5 overflow-y-auto px-5 py-4">
-                                {messages.length === 0 && <p className="mt-10 text-center text-sm text-gray-500">No messages yet. Say hello 👋</p>}
+                                {messages.length === 0 && <p className="mt-10 text-center text-sm text-gray-500">{t('No messages yet. Say hello 👋')}</p>}
                                 {messages.map((m, i) => {
                                     if (m.call_status) return <CallCard key={m.id} m={m} />;
                                     const mine = m.sender_id === meId;
@@ -259,7 +261,7 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
                                                 </div>
                                             </div>
                                             {mine && i === myLastIndex && (
-                                                <p className="mt-0.5 pr-1 text-right text-[10px] text-gray-500">{m.read ? '✓✓ Seen' : '✓ Sent'}</p>
+                                                <p className="mt-0.5 pr-1 text-right text-[10px] text-gray-500">{m.read ? `✓✓ ${t('Seen')}` : `✓ ${t('Sent')}`}</p>
                                             )}
                                         </div>
                                     );
@@ -301,16 +303,16 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
                                 </button>
                                 <input type="text" value={body}
                                     onChange={(e) => { setBody(e.target.value); pingTyping(); }}
-                                    placeholder="Type a message…"
+                                    placeholder={t('Type a message…')}
                                     className="flex-1 rounded-full border border-white/10 bg-ink px-5 py-2.5 text-white placeholder-gray-500 focus:border-gold focus:ring-gold" />
                                 <button type="submit" disabled={sending || (!body.trim() && !file)}
                                     className="rounded-full bg-gold px-6 py-2.5 text-sm font-bold text-ink transition hover:bg-gold-300 disabled:opacity-50">
-                                    {sending ? '…' : 'Send'}
+                                    {sending ? '…' : t('Send')}
                                 </button>
                             </form>
                         </>
                     ) : (
-                        <div className="flex flex-1 items-center justify-center text-gray-500">Select a conversation to start chatting.</div>
+                        <div className="flex flex-1 items-center justify-center text-gray-500">{t('Select a conversation to start chatting.')}</div>
                     )}
                 </section>
             </div>

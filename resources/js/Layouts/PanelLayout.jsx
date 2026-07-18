@@ -17,6 +17,7 @@ const ICONS = {
     doc: 'M7 3h7l4 4v14H7zM14 3v4h4',
     revise: 'M4 4v6h6M20 20v-6h-6M20 8a8 8 0 00-14.9-2M4 16a8 8 0 0014.9 2',
     box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+    delivery: 'M12 2.5l8.5 4.5v9L12 20.5 3.5 16v-9L12 2.5zM3.5 7L12 11.5 20.5 7M12 11.5V16M5.5 15l2 2 3.5-3.5',
     star: 'M12 2l3 6.5 7 .9-5 4.9 1.2 7L12 18l-6.4 3.3 1.2-7-5-4.9 7-.9z',
     list: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
     calendar: 'M8 3v4M16 3v4M4 8h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z',
@@ -95,7 +96,7 @@ export default function PanelLayout({ title, children }) {
             {!isFreelancer && (
                 <>
                     <NavItem href={route('mytasks.index')} icon={ICONS.list} active={current?.startsWith('mytasks')} onClick={close}>{t('My Tasks')}</NavItem>
-                    <NavItem href={route('deliveries.index')} icon={ICONS.box} active={current?.startsWith('deliveries')} badge={pendingDeliveries} onClick={close}>{t('Deliveries')}</NavItem>
+                    <NavItem href={route('deliveries.index')} icon={ICONS.delivery} active={current?.startsWith('deliveries')} badge={pendingDeliveries} onClick={close}>{t('Deliveries')}</NavItem>
                     <NavItem href={route('booking.index')} icon={ICONS.calendar} active={current?.startsWith('booking')} onClick={close}>{t('Book a Call')}</NavItem>
                 </>
             )}
@@ -103,7 +104,7 @@ export default function PanelLayout({ title, children }) {
                 <>
                     <NavItem href={route('payments.index')} icon={ICONS.cash} active={current?.startsWith('payments')} onClick={close}>{t('Payments')}</NavItem>
                     <NavItem href={route('tasks.index')} icon={ICONS.list} active={current?.startsWith('tasks')} badge={newTasks} onClick={close}>{t('Tasks')}</NavItem>
-                    <NavItem href={route('work.index')} icon={ICONS.box} active={current?.startsWith('work')} onClick={close}>{t('Deliveries')}</NavItem>
+                    <NavItem href={route('work.index')} icon={ICONS.delivery} active={current?.startsWith('work')} onClick={close}>{t('Deliveries')}</NavItem>
                     <NavItem href={route('reviews.index')} icon={ICONS.star} active={current?.startsWith('reviews')} onClick={close}>{t('Reviews')}</NavItem>
                     <NavItem href={route('payment.settings')} icon={ICONS.wallet} active={current?.startsWith('payment.settings')} onClick={close}>{t('Get Paid')}</NavItem>
                     <NavItem href={route('revisions.index')} icon={ICONS.revise} active={current?.startsWith('revisions')} badge={pendingRevisions} onClick={close}>{t('Revisions')}</NavItem>
