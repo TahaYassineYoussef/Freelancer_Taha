@@ -12,6 +12,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentSettingsController;
 use App\Http\Controllers\ReviewModerationController;
+use App\Http\Controllers\TaskBoardController;
 use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\PortfolioController;
@@ -88,6 +89,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/contact-messages', [ContactController::class, 'index'])->name('contact.index');
         Route::delete('/contact-messages/{contactMessage}', [ContactController::class, 'destroy'])->name('contact.destroy');
+
+        // Filterable board of all tasks
+        Route::get('/tasks-board', [TaskBoardController::class, 'index'])->name('tasks.index');
 
         // Freelancer's delivery workspace
         Route::get('/work', [WorkController::class, 'index'])->name('work.index');

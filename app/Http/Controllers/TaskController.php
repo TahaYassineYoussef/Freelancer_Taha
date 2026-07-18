@@ -36,7 +36,7 @@ class TaskController extends Controller
             'task',
             'New task posted',
             "{$request->user()->name} posted “{$task->title}”.",
-            route('dashboard', ['task' => $task->id]),
+            route('tasks.index', ['status' => 'open', 'task' => $task->id]),
             '📋',
         ));
 

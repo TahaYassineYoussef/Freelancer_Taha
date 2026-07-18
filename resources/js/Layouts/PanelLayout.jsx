@@ -15,6 +15,7 @@ const ICONS = {
     revise: 'M4 4v6h6M20 20v-6h-6M20 8a8 8 0 00-14.9-2M4 16a8 8 0 0014.9 2',
     box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
     star: 'M12 2l3 6.5 7 .9-5 4.9 1.2 7L12 18l-6.4 3.3 1.2-7-5-4.9 7-.9z',
+    list: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
 };
 
 function NavIcon({ d }) {
@@ -54,6 +55,7 @@ export default function PanelLayout({ title, children }) {
     const unread = auth?.unreadMessages ?? 0;
     const pendingRevisions = auth?.pendingRevisions ?? 0;
     const pendingDeliveries = auth?.pendingDeliveries ?? 0;
+    const newTasks = auth?.newTasks ?? 0;
     const current = route().current();
     const isFreelancer = user?.role === 'freelancer';
     const [open, setOpen] = useState(false);
@@ -71,6 +73,7 @@ export default function PanelLayout({ title, children }) {
             {isFreelancer && (
                 <>
                     <NavItem href={route('payments.index')} icon={ICONS.cash} active={current?.startsWith('payments')} onClick={close}>Payments</NavItem>
+                    <NavItem href={route('tasks.index')} icon={ICONS.list} active={current?.startsWith('tasks')} badge={newTasks} onClick={close}>Tasks</NavItem>
                     <NavItem href={route('work.index')} icon={ICONS.box} active={current?.startsWith('work')} onClick={close}>Deliveries</NavItem>
                     <NavItem href={route('reviews.index')} icon={ICONS.star} active={current?.startsWith('reviews')} onClick={close}>Reviews</NavItem>
                     <NavItem href={route('payment.settings')} icon={ICONS.wallet} active={current?.startsWith('payment.settings')} onClick={close}>Get Paid</NavItem>
