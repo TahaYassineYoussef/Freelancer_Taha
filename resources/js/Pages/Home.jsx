@@ -150,9 +150,9 @@ function Hero({ freelancer, user }) {
                 <div>
                     <p className="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-gold">{t('Hello!')}</p>
                     <h1 className="text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
-                        {t("I'm")} <span className="text-gold">Taha Yassine</span>
+                        {t("I'm")} <span className="text-gold">{t('Taha Yassine')}</span>
                         <br />
-                        Youssef
+                        {t('Youssef')}
                     </h1>
                     <p className="mt-5 text-lg text-gray-300">
                         {freelancer?.headline ?? 'Freelance Full-Stack Developer'}

@@ -1,5 +1,6 @@
 import PanelLayout from '@/Layouts/PanelLayout';
 import useNotifFlash from '@/useNotifFlash';
+import { useT } from '@/i18n';
 import { Head, router } from '@inertiajs/react';
 
 function fmtDate(value) {
@@ -14,6 +15,7 @@ function fmtDate(value) {
 }
 
 export default function ContactMessages({ messages }) {
+    const t = useT();
     useNotifFlash('contact', 'msg');
 
     const remove = (m) => {
@@ -28,7 +30,7 @@ export default function ContactMessages({ messages }) {
 
             {messages.length === 0 ? (
                 <div className="rounded-2xl border border-white/5 bg-ink-700 p-10 text-center text-gray-400">
-                    No messages yet. They arrive here from the contact form on your home page.
+                    {t('No messages yet. They arrive here from the contact form on your home page.')}
                 </div>
             ) : (
                 <div className="space-y-4">
@@ -37,13 +39,13 @@ export default function ContactMessages({ messages }) {
                             <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="min-w-0">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <h3 className="font-bold text-white">{m.subject || '(No subject)'}</h3>
+                                        <h3 className="font-bold text-white">{m.subject || t('(No subject)')}</h3>
                                         {!m.read_at && (
-                                            <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">New</span>
+                                            <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">{t('New')}</span>
                                         )}
                                     </div>
                                     <p className="mt-1 text-sm text-gray-400">
-                                        From <span className="text-gold">{m.name}</span> ·{' '}
+                                        {t('From')} <span className="text-gold">{m.name}</span> ·{' '}
                                         <a href={`mailto:${m.email}`} className="underline hover:text-white">{m.email}</a>
                                     </p>
                                     <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm text-gray-300">{m.body}</p>
@@ -54,9 +56,9 @@ export default function ContactMessages({ messages }) {
                                         href={`mailto:${m.email}?subject=${encodeURIComponent('Re: ' + (m.subject || 'Your message'))}`}
                                         className="rounded-full bg-gold px-4 py-1.5 font-semibold text-ink hover:bg-gold-300"
                                     >
-                                        Reply
+                                        {t('Reply')}
                                     </a>
-                                    <button onClick={() => remove(m)} className="text-red-400 hover:text-red-300">Delete</button>
+                                    <button onClick={() => remove(m)} className="text-red-400 hover:text-red-300">{t('Delete')}</button>
                                 </div>
                             </div>
                         </div>

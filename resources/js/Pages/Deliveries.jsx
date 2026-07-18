@@ -1,6 +1,7 @@
 import PanelLayout from '@/Layouts/PanelLayout';
 import RequestChangesModal from '@/Components/RequestChangesModal';
 import useNotifFlash from '@/useNotifFlash';
+import { useT } from '@/i18n';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -11,6 +12,7 @@ function fmtDate(value) {
 
 export default function Deliveries({ tasks }) {
     const [changeTask, setChangeTask] = useState(null);
+    const t = useT();
 
     useNotifFlash('delivery');
 
@@ -23,18 +25,17 @@ export default function Deliveries({ tasks }) {
             <Head title="Deliveries" />
 
             <p className="mb-6 max-w-2xl text-sm text-gray-400">
-                Work Taha has delivered to you. Review each delivery, then <span className="text-green-300">approve</span> it
-                or <span className="text-gray-200">request changes</span>.
+                {t('Work Taha has delivered to you. Review each delivery, then')} <span className="text-green-300">{t('approve')}</span> {t('it or')} <span className="text-gray-200">{t('request changes')}</span>.
             </p>
 
             {tasks.length === 0 ? (
                 <div className="rounded-2xl border border-white/5 bg-ink-700 p-10 text-center text-gray-400">
-                    No deliveries yet. When Taha delivers a task, it shows up here.
+                    {t('No deliveries yet. When Taha delivers a task, it shows up here.')}
                 </div>
             ) : (
                 <div className="space-y-4">
                     {pending.length > 0 && (
-                        <h2 className="text-sm font-bold uppercase tracking-wide text-purple-300">Awaiting your approval</h2>
+                        <h2 className="text-sm font-bold uppercase tracking-wide text-purple-300">{t('Awaiting your approval')}</h2>
                     )}
                     {tasks.map((task) => {
                         const done = task.status === 'completed';
@@ -49,30 +50,30 @@ export default function Deliveries({ tasks }) {
                                         <div className="flex flex-wrap items-center gap-3">
                                             <h3 className="text-lg font-bold text-white">{task.title}</h3>
                                             <span className={`rounded-full px-3 py-1 text-xs font-semibold ${done ? 'bg-green-500/15 text-green-300' : 'bg-purple-500/15 text-purple-300'}`}>
-                                                {done ? '✓ Completed' : 'Delivered'}
+                                                {done ? <>✓ {t('Completed')}</> : t('Delivered')}
                                             </span>
                                         </div>
 
                                         <div className="mt-4 rounded-xl border border-white/10 bg-ink-800 p-4">
-                                            <p className="text-xs font-semibold uppercase tracking-wide text-purple-300">📦 Delivery</p>
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-purple-300">📦 {t('Delivery')}</p>
                                             {task.note && <p className="mt-2 text-sm text-gray-300">{task.note}</p>}
                                             <div className="mt-3 flex flex-wrap gap-3">
                                                 {task.file && (
-                                                    <a href={task.file} target="_blank" rel="noreferrer" download className="rounded-full bg-gold px-4 py-1.5 text-sm font-semibold text-ink hover:bg-gold-300">⬇ Download file</a>
+                                                    <a href={task.file} target="_blank" rel="noreferrer" download className="rounded-full bg-gold px-4 py-1.5 text-sm font-semibold text-ink hover:bg-gold-300">⬇ {t('Download file')}</a>
                                                 )}
                                                 {task.link && (
-                                                    <a href={task.link} target="_blank" rel="noreferrer" className="rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white hover:border-gold hover:text-gold">🔗 Open link</a>
+                                                    <a href={task.link} target="_blank" rel="noreferrer" className="rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white hover:border-gold hover:text-gold">🔗 {t('Open link')}</a>
                                                 )}
-                                                {!task.file && !task.link && <span className="text-sm text-gray-500">No attachment — see the message above.</span>}
+                                                {!task.file && !task.link && <span className="text-sm text-gray-500">{t('No attachment — see the message above.')}</span>}
                                             </div>
-                                            {task.delivered_at && <p className="mt-2 text-[11px] text-gray-500">Delivered {fmtDate(task.delivered_at)}</p>}
+                                            {task.delivered_at && <p className="mt-2 text-[11px] text-gray-500">{t('Delivered')} {fmtDate(task.delivered_at)}</p>}
                                         </div>
                                     </div>
 
                                     {!done && (
                                         <div className="flex flex-shrink-0 flex-col items-end gap-2">
-                                            <button onClick={() => approve(task)} className="rounded-full bg-green-500/15 px-5 py-2 text-sm font-semibold text-green-300 hover:bg-green-500/25">✓ Approve</button>
-                                            <button onClick={() => setChangeTask(task)} className="rounded-full bg-white/5 px-5 py-2 text-sm font-semibold text-gray-300 hover:bg-white/10">🔁 Request changes</button>
+                                            <button onClick={() => approve(task)} className="rounded-full bg-green-500/15 px-5 py-2 text-sm font-semibold text-green-300 hover:bg-green-500/25">✓ {t('Approve')}</button>
+                                            <button onClick={() => setChangeTask(task)} className="rounded-full bg-white/5 px-5 py-2 text-sm font-semibold text-gray-300 hover:bg-white/10">🔁 {t('Request changes')}</button>
                                         </div>
                                     )}
                                 </div>
@@ -85,7 +86,7 @@ export default function Deliveries({ tasks }) {
             {changeTask && <RequestChangesModal task={changeTask} onClose={() => setChangeTask(null)} />}
 
             <div className="mt-6">
-                <Link href={route('chat.index')} className="text-sm text-gold hover:text-gold-300">Message Taha about a delivery →</Link>
+                <Link href={route('chat.index')} className="text-sm text-gold hover:text-gold-300">{t('Message Taha about a delivery')} →</Link>
             </div>
         </PanelLayout>
     );

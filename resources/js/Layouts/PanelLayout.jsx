@@ -159,7 +159,7 @@ export default function PanelLayout({ title, children }) {
                                 </svg>
                             </button>
                             <div>
-                                <h1 className="text-lg font-black text-white sm:text-xl">{t('Hi')} {user?.name?.split(' ')[0]}</h1>
+                                <h1 className="text-lg font-black text-white sm:text-xl">{t('Hi')} {t(user?.name?.split(' ')[0] || '')}</h1>
                                 <p className="text-xs text-gray-400">{t(title)}</p>
                             </div>
                         </div>
@@ -174,7 +174,7 @@ export default function PanelLayout({ title, children }) {
                                     rounded="rounded-full"
                                     className="h-9 w-9"
                                 />
-                                <span className="hidden text-sm font-semibold text-white sm:block">{user?.name}</span>
+                                <span className="hidden text-sm font-semibold text-white sm:block">{t(user?.name || '')}</span>
                             </div>
                         </div>
                     </div>

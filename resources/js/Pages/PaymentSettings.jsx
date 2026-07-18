@@ -1,4 +1,5 @@
 import PanelLayout from '@/Layouts/PanelLayout';
+import { useT } from '@/i18n';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -6,6 +7,7 @@ const inputCls =
     'w-full rounded-lg border border-white/10 bg-ink px-4 py-2.5 text-white placeholder-gray-500 focus:border-gold focus:ring-gold';
 
 export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId, paypalMode, currency }) {
+    const t = useT();
     const [data, setData] = useState({
         paypal_email: settings.paypal_email ?? '',
         paypal_client_id: settings.paypal_client_id ?? '',
@@ -47,14 +49,13 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
             <Head title="Payment Settings" />
 
             <p className="mb-6 max-w-2xl text-sm text-gray-400">
-                This is where your money arrives. Clients pay you with PayPal or D17 — whatever you fill
-                in here is what they see and pay into.
+                {t('This is where your money arrives. Clients pay you with PayPal or D17 — whatever you fill in here is what they see and pay into.')}
             </p>
 
             <form onSubmit={submit} className="max-w-3xl space-y-6">
                 {saved && (
                     <p className="rounded-lg bg-green-500/10 px-4 py-2 text-sm text-green-400">
-                        Payment settings saved.
+                        {t('Payment settings saved.')}
                     </p>
                 )}
 
@@ -63,14 +64,14 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-lg font-bold text-white">PayPal</h2>
                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${paypalReady ? 'bg-green-500/15 text-green-300' : 'bg-red-500/15 text-red-300'}`}>
-                            {paypalReady ? `Active · ${paypalMode}` : 'Not configured'}
+                            {paypalReady ? `${t('Active')} · ${paypalMode}` : t('Not configured')}
                         </span>
                     </div>
 
                     <div className="space-y-4">
                         <label className="block">
                             <span className="mb-1 block text-xs font-medium text-gray-400">
-                                PayPal account email (where the money lands)
+                                {t('PayPal account email (where the money lands)')}
                             </span>
                             <input
                                 type="email"
@@ -84,7 +85,7 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
 
                         <label className="block">
                             <span className="mb-1 block text-xs font-medium text-gray-400">
-                                PayPal Client ID
+                                {t('PayPal Client ID')}
                             </span>
                             <input
                                 type="text"
@@ -95,10 +96,9 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
                             />
                             {errors.paypal_client_id && <span className="mt-1 block text-sm text-red-400">{errors.paypal_client_id}</span>}
                             <span className="mt-1 block text-xs text-gray-500">
-                                From developer.paypal.com → Apps &amp; Credentials. This renders the PayPal
-                                button for clients. Currency: <span className="text-gold">{currency}</span>.
+                                {t('From developer.paypal.com → Apps & Credentials. This renders the PayPal button for clients. Currency:')} <span className="text-gold">{currency}</span>.
                                 {envPaypalClientId && !data.paypal_client_id && (
-                                    <> Currently using the Client ID from your <code className="text-gray-400">.env</code> file — enter one here to override it.</>
+                                    <> {t('Currently using the Client ID from your')} <code className="text-gray-400">.env</code> {t('file — enter one here to override it.')}</>
                                 )}
                             </span>
                         </label>
@@ -110,13 +110,13 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-lg font-bold text-white">D17 <span className="text-sm font-normal text-gray-500">(DigiPost)</span></h2>
                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${data.d17_number ? 'bg-green-500/15 text-green-300' : 'bg-red-500/15 text-red-300'}`}>
-                            {data.d17_number ? 'Active' : 'Not configured'}
+                            {data.d17_number ? t('Active') : t('Not configured')}
                         </span>
                     </div>
 
                     <div className="space-y-4">
                         <label className="block">
-                            <span className="mb-1 block text-xs font-medium text-gray-400">D17 wallet number</span>
+                            <span className="mb-1 block text-xs font-medium text-gray-400">{t('D17 wallet number')}</span>
                             <input
                                 type="text"
                                 value={data.d17_number}
@@ -126,7 +126,7 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
                             />
                             {errors.d17_number && <span className="mt-1 block text-sm text-red-400">{errors.d17_number}</span>}
                             <span className="mt-1 block text-xs text-gray-500">
-                                Shown to clients in the “Pay with D17” popup. They send here, then you confirm it under Payments.
+                                {t('Shown to clients in the “Pay with D17” popup. They send here, then you confirm it under Payments.')}
                             </span>
                         </label>
 
@@ -135,11 +135,11 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
                                 <img src={preview ?? d17QrUrl} alt="D17 QR" className="h-24 w-24 rounded-lg bg-white p-1" />
                             ) : (
                                 <div className="flex h-24 w-24 items-center justify-center rounded-lg border border-dashed border-white/20 text-center text-xs text-gray-500">
-                                    No QR yet
+                                    {t('No QR yet')}
                                 </div>
                             )}
                             <label className="cursor-pointer">
-                                <span className="mb-1 block text-xs font-medium text-gray-400">D17 QR code (optional)</span>
+                                <span className="mb-1 block text-xs font-medium text-gray-400">{t('D17 QR code (optional)')}</span>
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -150,7 +150,7 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
                                     }}
                                     className="block text-sm text-gray-400 file:mr-3 file:rounded-full file:border-0 file:bg-[#31a9e0] file:px-4 file:py-1.5 file:text-sm file:font-semibold file:text-white hover:file:opacity-90"
                                 />
-                                <span className="mt-1 block text-xs text-gray-500">Clients can scan this in the D17 app.</span>
+                                <span className="mt-1 block text-xs text-gray-500">{t('Clients can scan this in the D17 app.')}</span>
                             </label>
                         </div>
                     </div>
@@ -161,7 +161,7 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
                     disabled={processing}
                     className="rounded-full bg-gold px-8 py-3 text-sm font-bold uppercase tracking-wide text-ink transition hover:bg-gold-300 disabled:opacity-60"
                 >
-                    {processing ? 'Saving…' : 'Save payment settings'}
+                    {processing ? t('Saving…') : t('Save payment settings')}
                 </button>
             </form>
         </PanelLayout>

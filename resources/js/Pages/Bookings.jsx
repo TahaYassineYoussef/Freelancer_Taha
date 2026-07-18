@@ -1,5 +1,6 @@
 import CalendarMonth from '@/Components/CalendarMonth';
 import PanelLayout from '@/Layouts/PanelLayout';
+import { useT } from '@/i18n';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
@@ -12,6 +13,7 @@ const STATUS = {
 
 /** Modal to set / clear availability for one specific date. */
 function AvailabilityDayModal({ day, onClose }) {
+    const t = useT();
     const hasOverride = day.source === 'override';
     const { data, setData, post, processing, errors } = useForm({
         date: day.date,
@@ -31,7 +33,7 @@ function AvailabilityDayModal({ day, onClose }) {
             <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-ink-800 p-6" onClick={(e) => e.stopPropagation()}>
                 <h3 className="text-lg font-black text-white">{day.label}</h3>
                 <p className="mt-1 text-xs text-gray-400">
-                    {hasOverride ? 'Custom hours set for this date.' : 'Following your weekly hours. Set a custom rule below.'}
+                    {hasOverride ? t('Custom hours set for this date.') : t('Following your weekly hours. Set a custom rule below.')}
                 </p>
 
                 <form onSubmit={save} className="mt-5 space-y-4">
@@ -40,14 +42,14 @@ function AvailabilityDayModal({ day, onClose }) {
                             className={`relative h-6 w-11 flex-shrink-0 rounded-full transition ${data.is_open ? 'bg-gold' : 'bg-white/15'}`}>
                             <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${data.is_open ? 'left-[22px]' : 'left-0.5'}`} />
                         </button>
-                        <span className={`font-semibold ${data.is_open ? 'text-white' : 'text-gray-500'}`}>{data.is_open ? 'Available this day' : 'Day off'}</span>
+                        <span className={`font-semibold ${data.is_open ? 'text-white' : 'text-gray-500'}`}>{data.is_open ? t('Available this day') : t('Day off')}</span>
                     </div>
 
                     {data.is_open && (
                         <div className="flex items-center gap-2 text-sm text-gray-300">
                             <input type="time" value={data.start_time} onChange={(e) => setData('start_time', e.target.value)}
                                 className="rounded-lg border-white/10 bg-ink px-3 py-1.5 text-white focus:border-gold focus:ring-gold" />
-                            <span className="text-gray-500">to</span>
+                            <span className="text-gray-500">{t('to')}</span>
                             <input type="time" value={data.end_time} onChange={(e) => setData('end_time', e.target.value)}
                                 className="rounded-lg border-white/10 bg-ink px-3 py-1.5 text-white focus:border-gold focus:ring-gold" />
                         </div>
@@ -56,11 +58,11 @@ function AvailabilityDayModal({ day, onClose }) {
 
                     <div className="flex items-center justify-between gap-3 pt-1">
                         {hasOverride ? (
-                            <button type="button" onClick={revert} className="text-xs font-semibold text-gray-400 hover:text-white">↺ Use weekly hours</button>
+                            <button type="button" onClick={revert} className="text-xs font-semibold text-gray-400 hover:text-white">↺ {t('Use weekly hours')}</button>
                         ) : <span />}
                         <div className="flex gap-2">
-                            <button type="button" onClick={onClose} className="rounded-full px-4 py-2 text-sm font-semibold text-gray-400 hover:text-white">Cancel</button>
-                            <button type="submit" disabled={processing} className="rounded-full bg-gold px-5 py-2 text-sm font-bold text-ink hover:bg-gold-300 disabled:opacity-60">Save</button>
+                            <button type="button" onClick={onClose} className="rounded-full px-4 py-2 text-sm font-semibold text-gray-400 hover:text-white">{t('Cancel')}</button>
+                            <button type="submit" disabled={processing} className="rounded-full bg-gold px-5 py-2 text-sm font-bold text-ink hover:bg-gold-300 disabled:opacity-60">{t('Save')}</button>
                         </div>
                     </div>
                 </form>
@@ -70,6 +72,7 @@ function AvailabilityDayModal({ day, onClose }) {
 }
 
 export default function Bookings({ bookings, counts, availability }) {
+    const t = useT();
     const { flash } = usePage().props;
 
     const focusId = Number(new URLSearchParams(window.location.search).get('booking')) || null;
@@ -120,11 +123,11 @@ export default function Bookings({ bookings, counts, availability }) {
 
                 {!isPast && (
                     <button onClick={() => openAvail(dateStr, label)}
-                        title={av.source === 'override' ? 'Custom hours — click to edit' : 'Weekly hours — click to customise'}
+                        title={av.source === 'override' ? t('Custom hours — click to edit') : t('Weekly hours — click to customise')}
                         className={`block w-full truncate rounded px-1.5 py-0.5 text-left text-[10px] font-semibold transition hover:brightness-125 ${
                             av.is_open ? 'text-green-400 hover:bg-green-500/10' : 'text-gray-600 hover:bg-white/5'
                         } ${av.source === 'override' ? 'ring-1 ring-inset ring-gold/40' : ''}`}>
-                        {av.is_open ? `● ${av.start_time}–${av.end_time}` : '○ off'}
+                        {av.is_open ? `● ${av.start_time}–${av.end_time}` : `○ ${t('off')}`}
                     </button>
                 )}
             </>
@@ -141,17 +144,17 @@ export default function Bookings({ bookings, counts, availability }) {
 
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-black text-white">Call schedule</h2>
-                    <p className="mt-1 text-sm text-gray-400">Click a day's <span className="text-green-400">● hours</span> tag to set when you're free that date.</p>
+                    <h2 className="text-2xl font-black text-white">{t('Call schedule')}</h2>
+                    <p className="mt-1 text-sm text-gray-400">{t("Click a day's")} <span className="text-green-400">● {t('hours')}</span> {t("tag to set when you're free that date.")}</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                     <div className="rounded-xl border border-gold/20 bg-gold/5 px-4 py-2">
                         <span className="text-xl font-black text-gold">{counts.pending}</span>
-                        <span className="ml-2 text-xs text-gray-400">pending</span>
+                        <span className="ml-2 text-xs text-gray-400">{t('pending')}</span>
                     </div>
                     <div className="rounded-xl border border-green-500/20 bg-green-500/5 px-4 py-2">
                         <span className="text-xl font-black text-green-300">{counts.confirmed}</span>
-                        <span className="ml-2 text-xs text-gray-400">confirmed</span>
+                        <span className="ml-2 text-xs text-gray-400">{t('confirmed')}</span>
                     </div>
                 </div>
             </div>
@@ -160,10 +163,10 @@ export default function Bookings({ bookings, counts, availability }) {
 
             <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-400">
                 {Object.entries(STATUS).map(([key, s]) => (
-                    <span key={key} className="flex items-center gap-1.5"><span className={`h-2.5 w-2.5 rounded-full ${s.dot}`} />{s.label}</span>
+                    <span key={key} className="flex items-center gap-1.5"><span className={`h-2.5 w-2.5 rounded-full ${s.dot}`} />{t(s.label)}</span>
                 ))}
-                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-green-400" />Open day</span>
-                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full ring-1 ring-gold/60" />Custom date</span>
+                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-green-400" />{t('Open day')}</span>
+                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full ring-1 ring-gold/60" />{t('Custom date')}</span>
             </div>
 
             {/* Booking detail modal */}
@@ -171,8 +174,8 @@ export default function Bookings({ bookings, counts, availability }) {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setDetail(null)}>
                     <div className="w-full max-w-md rounded-2xl border border-white/10 bg-ink-800 p-6" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between">
-                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS[detail.status]?.badge}`}>{STATUS[detail.status]?.label}</span>
-                            {detail.is_past && <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-gray-400">Past</span>}
+                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS[detail.status]?.badge}`}>{STATUS[detail.status] ? t(STATUS[detail.status].label) : detail.status}</span>
+                            {detail.is_past && <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-gray-400">{t('Past')}</span>}
                         </div>
                         <h3 className="mt-3 text-lg font-bold text-white">{detail.topic}</h3>
                         <div className="mt-3 space-y-1.5 text-sm text-gray-300">
@@ -184,11 +187,11 @@ export default function Bookings({ bookings, counts, availability }) {
                         <div className="mt-5 flex justify-end gap-3">
                             {detail.status === 'pending' ? (
                                 <>
-                                    <button onClick={() => decline(detail)} className="rounded-full bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20">✕ Decline</button>
-                                    <button onClick={() => accept(detail)} className="rounded-full bg-green-500/15 px-5 py-2 text-sm font-semibold text-green-300 hover:bg-green-500/25">✓ Confirm</button>
+                                    <button onClick={() => decline(detail)} className="rounded-full bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20">✕ {t('Decline')}</button>
+                                    <button onClick={() => accept(detail)} className="rounded-full bg-green-500/15 px-5 py-2 text-sm font-semibold text-green-300 hover:bg-green-500/25">✓ {t('Confirm')}</button>
                                 </>
                             ) : (
-                                <button onClick={() => setDetail(null)} className="rounded-full bg-white/5 px-5 py-2 text-sm font-semibold text-gray-300 hover:bg-white/10">Close</button>
+                                <button onClick={() => setDetail(null)} className="rounded-full bg-white/5 px-5 py-2 text-sm font-semibold text-gray-300 hover:bg-white/10">{t('Close')}</button>
                             )}
                         </div>
                     </div>

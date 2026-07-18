@@ -2,6 +2,7 @@ import CollectionManager from '@/Components/CollectionManager';
 import ProjectsManager from '@/Components/ProjectsManager';
 import PanelLayout from '@/Layouts/PanelLayout';
 import Photo from '@/Components/Photo';
+import { useT } from '@/i18n';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -9,6 +10,7 @@ const inputCls =
     'w-full rounded-lg border border-white/10 bg-ink px-4 py-2.5 text-white placeholder-gray-500 focus:border-gold focus:ring-gold';
 
 function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
+    const t = useT();
     const [data, setData] = useState({
         name: profile.name ?? '',
         headline: profile.headline ?? '',
@@ -59,8 +61,8 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
     return (
         <section className="rounded-2xl border border-white/5 bg-ink-700 p-6">
             <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white">Profile</h2>
-                {saved && <span className="text-sm text-green-400">Saved!</span>}
+                <h2 className="text-lg font-bold text-white">{t('Profile')}</h2>
+                {saved && <span className="text-sm text-green-400">{t('Saved!')}</span>}
             </div>
 
             <form onSubmit={submit} className="space-y-4">
@@ -72,7 +74,7 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
                         className="h-20 w-20"
                     />
                     <label className="cursor-pointer">
-                        <span className="mb-1 block text-xs font-medium text-gray-400">Profile photo</span>
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('Profile photo')}</span>
                         <input
                             type="file"
                             accept="image/*"
@@ -84,24 +86,24 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                        <span className="mb-1 block text-xs font-medium text-gray-400">Name</span>
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('Name')}</span>
                         <input value={data.name} onChange={(e) => set('name', e.target.value)} className={inputCls} />
                     </label>
                     <label className="block">
-                        <span className="mb-1 block text-xs font-medium text-gray-400">Headline</span>
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('Headline')}</span>
                         <input value={data.headline} onChange={(e) => set('headline', e.target.value)} className={inputCls} />
                     </label>
                     <label className="block">
-                        <span className="mb-1 block text-xs font-medium text-gray-400">Location</span>
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('Location')}</span>
                         <input value={data.location} onChange={(e) => set('location', e.target.value)} className={inputCls} />
                     </label>
                     <label className="block">
-                        <span className="mb-1 block text-xs font-medium text-gray-400">Phone</span>
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('Phone')}</span>
                         <input value={data.phone} onChange={(e) => set('phone', e.target.value)} className={inputCls} />
                     </label>
                     <label className="block">
-                        <span className="mb-1 block text-xs font-medium text-gray-400">D17 wallet number</span>
-                        <input value={data.d17_number} onChange={(e) => set('d17_number', e.target.value)} className={inputCls} placeholder="e.g. 27617930" />
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('D17 wallet number')}</span>
+                        <input value={data.d17_number} onChange={(e) => set('d17_number', e.target.value)} className={inputCls} placeholder={t('e.g. 27617930')} />
                     </label>
                 </div>
 
@@ -110,11 +112,11 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
                         <img src={d17Preview ?? d17QrUrl} alt="D17 QR" className="h-20 w-20 rounded-lg bg-white p-1" />
                     ) : (
                         <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-dashed border-white/20 text-xs text-gray-500">
-                            No QR
+                            {t('No QR')}
                         </div>
                     )}
                     <label className="cursor-pointer">
-                        <span className="mb-1 block text-xs font-medium text-gray-400">D17 QR code (optional)</span>
+                        <span className="mb-1 block text-xs font-medium text-gray-400">{t('D17 QR code (optional)')}</span>
                         <input
                             type="file"
                             accept="image/*"
@@ -125,7 +127,7 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
                 </div>
 
                 <label className="block">
-                    <span className="mb-1 block text-xs font-medium text-gray-400">Bio</span>
+                    <span className="mb-1 block text-xs font-medium text-gray-400">{t('Bio')}</span>
                     <textarea rows={4} value={data.bio} onChange={(e) => set('bio', e.target.value)} className={inputCls} />
                 </label>
                 <button
@@ -133,7 +135,7 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
                     disabled={processing}
                     className="rounded-full bg-gold px-6 py-2.5 text-sm font-bold text-ink hover:bg-gold-300 disabled:opacity-60"
                 >
-                    Save Profile
+                    {t('Save Profile')}
                 </button>
             </form>
         </section>
@@ -141,6 +143,7 @@ function ProfileForm({ profile, avatarUrl, d17QrUrl }) {
 }
 
 export default function Manage({ profile, avatarUrl, d17QrUrl, testimonials, diplomas, experiences, internships, projects, skills, services }) {
+    const t = useT();
     return (
         <PanelLayout title="Manage CV">
             <Head title="Manage CV" />
@@ -151,14 +154,14 @@ export default function Manage({ profile, avatarUrl, d17QrUrl, testimonials, dip
                 <ProjectsManager projects={projects} />
 
                 <CollectionManager
-                    title="Skills"
+                    title={t('Skills')}
                     items={skills}
                     storeRoute="cv.skills.store"
                     updateRoute="cv.skills.update"
                     destroyRoute="cv.skills.destroy"
                     fields={[
-                        { name: 'name', label: 'Skill', type: 'text' },
-                        { name: 'level', label: 'Level (0–100)', type: 'number' },
+                        { name: 'name', label: t('Skill'), type: 'text' },
+                        { name: 'level', label: t('Level (0–100)'), type: 'number' },
                     ]}
                     summary={(s) => (
                         <>
@@ -169,38 +172,38 @@ export default function Manage({ profile, avatarUrl, d17QrUrl, testimonials, dip
                 />
 
                 <CollectionManager
-                    title="Services"
+                    title={t('Services')}
                     items={services}
                     storeRoute="cv.services.store"
                     updateRoute="cv.services.update"
                     destroyRoute="cv.services.destroy"
                     fields={[
-                        { name: 'title', label: 'Service', type: 'text' },
-                        { name: 'price', label: 'Starting price ($)', type: 'number' },
-                        { name: 'description', label: 'Description', type: 'textarea' },
+                        { name: 'title', label: t('Service'), type: 'text' },
+                        { name: 'price', label: t('Starting price ($)'), type: 'number' },
+                        { name: 'description', label: t('Description'), type: 'textarea' },
                     ]}
                     summary={(s) => (
                         <>
                             <p className="font-semibold text-white">{s.title}</p>
-                            {s.price && <p className="text-xs text-gold">From ${s.price}</p>}
+                            {s.price && <p className="text-xs text-gold">{t('From')} ${s.price}</p>}
                             {s.description && <p className="mt-1 text-sm text-gray-400">{s.description}</p>}
                         </>
                     )}
                 />
 
                 <CollectionManager
-                    title="Diplomas"
+                    title={t('Diplomas')}
                     items={diplomas}
                     storeRoute="cv.diplomas.store"
                     updateRoute="cv.diplomas.update"
                     destroyRoute="cv.diplomas.destroy"
                     fields={[
-                        { name: 'title', label: 'Title', type: 'text' },
-                        { name: 'institution', label: 'Institution', type: 'text' },
-                        { name: 'field', label: 'Field', type: 'text' },
-                        { name: 'start_year', label: 'Start Year', type: 'number' },
-                        { name: 'end_year', label: 'End Year', type: 'number' },
-                        { name: 'description', label: 'Description', type: 'textarea' },
+                        { name: 'title', label: t('Title'), type: 'text' },
+                        { name: 'institution', label: t('Institution'), type: 'text' },
+                        { name: 'field', label: t('Field'), type: 'text' },
+                        { name: 'start_year', label: t('Start Year'), type: 'number' },
+                        { name: 'end_year', label: t('End Year'), type: 'number' },
+                        { name: 'description', label: t('Description'), type: 'textarea' },
                     ]}
                     summary={(d) => (
                         <>
@@ -214,44 +217,44 @@ export default function Manage({ profile, avatarUrl, d17QrUrl, testimonials, dip
                 />
 
                 <CollectionManager
-                    title="Work Experience"
+                    title={t('Work Experience')}
                     items={experiences}
                     storeRoute="cv.experiences.store"
                     updateRoute="cv.experiences.update"
                     destroyRoute="cv.experiences.destroy"
                     fields={[
-                        { name: 'position', label: 'Position', type: 'text' },
-                        { name: 'company', label: 'Company', type: 'text' },
-                        { name: 'location', label: 'Location', type: 'text' },
-                        { name: 'start_date', label: 'Start Date', type: 'date' },
-                        { name: 'end_date', label: 'End Date', type: 'date' },
-                        { name: 'is_current', label: 'I currently work here', type: 'checkbox' },
-                        { name: 'description', label: 'Description', type: 'textarea' },
+                        { name: 'position', label: t('Position'), type: 'text' },
+                        { name: 'company', label: t('Company'), type: 'text' },
+                        { name: 'location', label: t('Location'), type: 'text' },
+                        { name: 'start_date', label: t('Start Date'), type: 'date' },
+                        { name: 'end_date', label: t('End Date'), type: 'date' },
+                        { name: 'is_current', label: t('I currently work here'), type: 'checkbox' },
+                        { name: 'description', label: t('Description'), type: 'textarea' },
                     ]}
                     summary={(e) => (
                         <>
                             <p className="font-semibold text-white">{e.position}</p>
                             <p className="text-sm text-gold">{e.company}</p>
                             <p className="text-xs text-gray-500">
-                                {[e.location, e.is_current ? 'Current' : null].filter(Boolean).join(' · ')}
+                                {[e.location, e.is_current ? t('Current') : null].filter(Boolean).join(' · ')}
                             </p>
                         </>
                     )}
                 />
 
                 <CollectionManager
-                    title="Internships"
+                    title={t('Internships')}
                     items={internships}
                     storeRoute="cv.internships.store"
                     updateRoute="cv.internships.update"
                     destroyRoute="cv.internships.destroy"
                     fields={[
-                        { name: 'position', label: 'Position', type: 'text' },
-                        { name: 'company', label: 'Company', type: 'text' },
-                        { name: 'location', label: 'Location', type: 'text' },
-                        { name: 'start_date', label: 'Start Date', type: 'date' },
-                        { name: 'end_date', label: 'End Date', type: 'date' },
-                        { name: 'description', label: 'Description', type: 'textarea' },
+                        { name: 'position', label: t('Position'), type: 'text' },
+                        { name: 'company', label: t('Company'), type: 'text' },
+                        { name: 'location', label: t('Location'), type: 'text' },
+                        { name: 'start_date', label: t('Start Date'), type: 'date' },
+                        { name: 'end_date', label: t('End Date'), type: 'date' },
+                        { name: 'description', label: t('Description'), type: 'textarea' },
                     ]}
                     summary={(i) => (
                         <>
