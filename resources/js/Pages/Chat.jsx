@@ -212,11 +212,19 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
                                     onClick={() => openConversation(p)}
                                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${active ? 'bg-gold/15' : 'hover:bg-white/5'}`}
                                 >
-                                    <Photo src={p.role === 'freelancer' ? FREELANCER_PHOTO : null} name={p.name} rounded="rounded-full" className="h-10 w-10 flex-shrink-0" />
-                                    <div className="min-w-0">
-                                        <p className={`truncate text-sm font-semibold ${active ? 'text-gold' : 'text-white'}`}>{p.name}</p>
-                                        <p className="truncate text-xs capitalize text-gray-500">{p.role}</p>
+                                    <div className="relative flex-shrink-0">
+                                        <Photo src={p.role === 'freelancer' ? FREELANCER_PHOTO : null} name={p.name} rounded="rounded-full" className="h-10 w-10" />
+                                        {p.unread > 0 && (
+                                            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                                                {p.unread > 9 ? '9+' : p.unread}
+                                            </span>
+                                        )}
                                     </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className={`truncate text-sm ${p.unread > 0 ? 'font-bold text-white' : 'font-semibold'} ${active ? 'text-gold' : p.unread > 0 ? 'text-white' : 'text-white'}`}>{p.name}</p>
+                                        <p className="truncate text-xs capitalize text-gray-500">{p.unread > 0 ? <span className="font-semibold text-gold">New message</span> : p.role}</p>
+                                    </div>
+                                    {p.unread > 0 && <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-gold" />}
                                 </button>
                             );
                         })}

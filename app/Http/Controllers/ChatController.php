@@ -31,6 +31,16 @@ class ChatController extends Controller
             $this->markRead($me->id, $selected->id);
         }
 
+        // Unread count per conversation (computed after marking the open one read,
+        // so the selected conversation correctly shows zero).
+        $unreadBySender = Message::where('receiver_id', $me->id)
+            ->whereNull('read_at')
+            ->selectRaw('sender_id, count(*) as total')
+            ->groupBy('sender_id')
+            ->pluck('total', 'sender_id');
+
+        $partners->each(fn ($p) => $p->unread = (int) ($unreadBySender[$p->id] ?? 0));
+
         return Inertia::render('Chat', [
             'partners' => $partners->values(),
             'selectedPartner' => $selected,
