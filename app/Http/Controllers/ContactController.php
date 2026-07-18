@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\ContactMessage;
 use App\Models\User;
-use App\Notifications\ContactReceived;
+use App\Notifications\ActivityNotification;
+use App\Support\Notifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,11 +28,10 @@ class ContactController extends Controller
 
         $contact = ContactMessage::create($data);
 
-        $freelancer = User::where('role', 'freelancer')->first();
-        $freelancer?->notify(new \App\Notifications\ActivityNotification(
+        Notifier::send(User::where('role', 'freelancer')->first(), new ActivityNotification(
             'contact',
             'New contact message',
-            "{$contact->name}: ".\Illuminate\Support\Str::limit($contact->body, 60),
+            "{$contact->name}: ".Str::limit($contact->body, 60),
             route('contact.index', ['msg' => $contact->id]),
             '✉️',
         ));

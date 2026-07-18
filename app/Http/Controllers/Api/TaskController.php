@@ -37,7 +37,7 @@ class TaskController extends Controller
 
         $task = $request->user()->tasks()->create([...$data, 'status' => 'open']);
 
-        User::where('role', 'freelancer')->first()?->notify(new TaskPosted($task));
+        \App\Support\Notifier::send(User::where('role', 'freelancer')->first(), new TaskPosted($task));
 
         return response()->json(['task' => $this->present($task->load('payments'), $request->user())], 201);
     }

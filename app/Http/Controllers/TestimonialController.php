@@ -27,7 +27,8 @@ class TestimonialController extends Controller
             'approved' => false,
         ]);
 
-        \App\Models\User::where('role', 'freelancer')->first()?->notify(
+        \App\Support\Notifier::send(
+            \App\Models\User::where('role', 'freelancer')->first(),
             new \App\Notifications\ActivityNotification(
                 'review',
                 'New review',
