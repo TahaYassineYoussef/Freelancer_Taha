@@ -155,7 +155,7 @@ function Hero({ freelancer, user }) {
                         {t('Youssef')}
                     </h1>
                     <p className="mt-5 text-lg text-gray-300">
-                        {freelancer?.headline ?? 'Freelance Full-Stack Developer'}
+                        {t(freelancer?.headline ?? 'Freelance Full-Stack Developer')}
                     </p>
 
                     <div className="mt-8 flex flex-wrap gap-4">
@@ -201,6 +201,7 @@ function Hero({ freelancer, user }) {
 }
 
 function About({ freelancer, user }) {
+    const t = useT();
     return (
         <section id="about" className="border-t border-white/5 py-20">
             <div className="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-[280px_1fr] md:items-start">
@@ -212,7 +213,7 @@ function About({ freelancer, user }) {
                 />
                 <div>
                     <SectionTitle ghost="About">About Me</SectionTitle>
-                    <p className="max-w-2xl text-gray-300">{freelancer?.bio}</p>
+                    <p className="max-w-2xl text-gray-300">{t(freelancer?.bio || '')}</p>
 
                     <dl className="mt-8 grid max-w-xl grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                         <Detail label="Name" value={freelancer?.name} />
@@ -223,10 +224,10 @@ function About({ freelancer, user }) {
 
                     <div className="mt-8 flex flex-wrap gap-4">
                         <a href="#contact" className="rounded-full bg-gold px-6 py-3 text-sm font-bold uppercase text-ink transition hover:bg-gold-300">
-                            Chat with me
+                            {t('Chat with me')}
                         </a>
                         <a href="#resume" className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold uppercase text-white transition hover:border-gold hover:text-gold">
-                            My Resume
+                            {t('My Resume')}
                         </a>
                     </div>
                 </div>
@@ -236,10 +237,11 @@ function About({ freelancer, user }) {
 }
 
 function Detail({ label, value }) {
+    const t = useT();
     if (!value) return null;
     return (
         <div className="flex gap-2 border-b border-white/5 py-2">
-            <dt className="font-semibold text-white">{label}:</dt>
+            <dt className="font-semibold text-white">{t(label)}:</dt>
             <dd className="text-gray-400">{value}</dd>
         </div>
     );
