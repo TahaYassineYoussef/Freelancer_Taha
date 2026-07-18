@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AvailabilityController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ClientTaskController;
 use App\Http\Controllers\ContactController;
@@ -69,10 +71,19 @@ Route::middleware('auth')->group(function () {
     // Client's deliveries (work delivered to them, awaiting approval)
     Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');
 
+    // Booking a call with the freelancer (client requests a free slot)
+    Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
+    Route::post('/booking', [BookingController::class, 'store'])
+        ->middleware('throttle:10,60') // anti-spam: max 10 requests per hour
+        ->name('booking.store');
+    Route::delete('/booking/{booking}', [BookingController::class, 'destroy'])->name('booking.destroy');
+
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{user}/messages', [ChatController::class, 'fetch'])->name('chat.fetch');
+    Route::get('/chat/{user}/poll', [ChatController::class, 'poll'])->name('chat.poll');
     Route::post('/chat/{user}/messages', [ChatController::class, 'store'])->name('chat.store');
+    Route::post('/chat/{user}/signal', [ChatController::class, 'signal'])->name('chat.signal');
 
     // Testimonials: clients submit, freelancer moderates
     Route::post('/testimonials', [TestimonialController::class, 'store'])
@@ -105,6 +116,13 @@ Route::middleware('auth')->group(function () {
 
         // Pending client change requests
         Route::get('/revisions', [RevisionController::class, 'index'])->name('revisions.index');
+
+        // Weekly availability (working hours) + booking management
+        Route::get('/availability', [AvailabilityController::class, 'edit'])->name('availability.edit');
+        Route::post('/availability', [AvailabilityController::class, 'update'])->name('availability.update');
+        Route::get('/bookings', [BookingController::class, 'manage'])->name('bookings.index');
+        Route::patch('/bookings/{booking}/confirm', [BookingController::class, 'confirm'])->name('bookings.confirm');
+        Route::patch('/bookings/{booking}/decline', [BookingController::class, 'decline'])->name('bookings.decline');
 
         // Blocked submissions (scam / profanity caught by moderation)
         Route::get('/blocked', [ModerationLogController::class, 'index'])->name('moderation.index');

@@ -81,6 +81,16 @@ class User extends Authenticatable
         return $this->hasMany(Task::class);
     }
 
+    public function availabilities(): HasMany
+    {
+        return $this->hasMany(Availability::class);
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
     public function testimonials(): HasMany
     {
         return $this->hasMany(Testimonial::class);

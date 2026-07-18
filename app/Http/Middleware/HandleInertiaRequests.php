@@ -49,6 +49,9 @@ class HandleInertiaRequests extends Middleware
                 'pendingDeliveries' => fn () => ($request->user() && ! $request->user()->isFreelancer())
                     ? $request->user()->tasks()->where('status', 'delivered')->count()
                     : 0,
+                'pendingBookings' => fn () => $request->user()?->isFreelancer()
+                    ? \App\Models\Booking::where('status', 'pending')->count()
+                    : 0,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Message;
+use App\Models\Signal;
 use App\Models\User;
-use App\Notifications\NewChatMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -38,7 +39,35 @@ class ChatController extends Controller
     }
 
     /**
-     * JSON endpoint used by the front-end to poll for new messages.
+     * The front-end polls this ~1s: it returns the conversation, marks incoming
+     * messages read, and drains any real-time signals (typing / call handshake)
+     * the partner has sent us. Signals are consumed once and then deleted.
+     */
+    public function poll(Request $request, User $user): JsonResponse
+    {
+        $me = $request->user();
+        $this->assertCanChat($me, $user);
+
+        $this->markRead($me->id, $user->id);
+
+        // Drain signals addressed to me from this partner (consume-once).
+        $signals = Signal::where('to_id', $me->id)
+            ->where('from_id', $user->id)
+            ->orderBy('id')
+            ->get(['id', 'kind', 'payload']);
+
+        if ($signals->isNotEmpty()) {
+            Signal::whereIn('id', $signals->pluck('id'))->delete();
+        }
+
+        return response()->json([
+            'messages' => $this->conversation($me->id, $user->id),
+            'signals' => $signals->map(fn ($s) => ['kind' => $s->kind, 'payload' => $s->payload])->values(),
+        ]);
+    }
+
+    /**
+     * Backwards-compatible: return the conversation (used by older callers/tests).
      */
     public function fetch(Request $request, User $user): JsonResponse
     {
@@ -47,9 +76,7 @@ class ChatController extends Controller
 
         $this->markRead($me->id, $user->id);
 
-        return response()->json([
-            'messages' => $this->conversation($me->id, $user->id),
-        ]);
+        return response()->json(['messages' => $this->conversation($me->id, $user->id)]);
     }
 
     public function store(Request $request, User $user): JsonResponse
@@ -58,26 +85,72 @@ class ChatController extends Controller
         $this->assertCanChat($me, $user);
 
         $data = $request->validate([
-            'body' => ['required', 'string', 'max:2000'],
+            'body' => ['nullable', 'string', 'max:2000'],
+            'attachment' => ['nullable', 'file', 'max:25600', // 25 MB
+                'mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,mp3,mp4,mov'],
         ]);
 
-        $message = Message::create([
+        if (blank($data['body'] ?? null) && ! $request->hasFile('attachment')) {
+            return response()->json(['message' => 'Type a message or attach a file.'], 422);
+        }
+
+        $attributes = [
             'sender_id' => $me->id,
             'receiver_id' => $user->id,
-            'body' => $data['body'],
-        ]);
+            'body' => $data['body'] ?? null,
+        ];
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $attributes['attachment_path'] = $file->store('chat', 'public');
+            $attributes['attachment_name'] = $file->getClientOriginalName();
+            $attributes['attachment_mime'] = $file->getMimeType();
+        }
+
+        $message = Message::create($attributes);
+
+        $preview = $message->body
+            ? "{$me->name}: ".Str::limit($message->body, 60)
+            : "{$me->name} sent an attachment 📎";
 
         $user->notify(new \App\Notifications\ActivityNotification(
             'message',
             'New message',
-            "{$me->name}: ".\Illuminate\Support\Str::limit($message->body, 60),
+            $preview,
             route('chat.index', ['with' => $me->id]),
             '💬',
         ));
 
-        return response()->json([
-            'messages' => $this->conversation($me->id, $user->id),
+        return response()->json(['messages' => $this->conversation($me->id, $user->id)]);
+    }
+
+    /**
+     * Store one real-time signal for the partner to pick up on their next poll.
+     * Used for the typing indicator and the WebRTC call handshake.
+     */
+    public function signal(Request $request, User $user): JsonResponse
+    {
+        $me = $request->user();
+        $this->assertCanChat($me, $user);
+
+        $data = $request->validate([
+            'kind' => ['required', 'string', 'in:typing,offer,answer,ice,decline,hangup'],
+            'payload' => ['nullable', 'string'],
         ]);
+
+        // Typing pings are noisy; keep only the latest per sender/receiver.
+        if ($data['kind'] === 'typing') {
+            Signal::where('from_id', $me->id)->where('to_id', $user->id)->where('kind', 'typing')->delete();
+        }
+
+        Signal::create([
+            'from_id' => $me->id,
+            'to_id' => $user->id,
+            'kind' => $data['kind'],
+            'payload' => $data['payload'] ?? null,
+        ]);
+
+        return response()->json(['ok' => true]);
     }
 
     /**
@@ -113,7 +186,18 @@ class ChatController extends Controller
             ->where(fn ($q) => $q->where('sender_id', $meId)->where('receiver_id', $otherId))
             ->orWhere(fn ($q) => $q->where('sender_id', $otherId)->where('receiver_id', $meId))
             ->orderBy('created_at')
-            ->get(['id', 'sender_id', 'receiver_id', 'body', 'created_at']);
+            ->get()
+            ->map(fn (Message $m) => [
+                'id' => $m->id,
+                'sender_id' => $m->sender_id,
+                'receiver_id' => $m->receiver_id,
+                'body' => $m->body,
+                'attachment_url' => $m->attachmentUrl(),
+                'attachment_name' => $m->attachment_name,
+                'attachment_mime' => $m->attachment_mime,
+                'read' => $m->read_at !== null,
+                'created_at' => $m->created_at,
+            ]);
     }
 
     private function markRead(int $meId, int $otherId): void
