@@ -10,10 +10,12 @@ class Message extends Model
     protected $fillable = [
         'sender_id', 'receiver_id', 'body', 'read_at',
         'attachment_path', 'attachment_name', 'attachment_mime',
+        'call_kind', 'call_status', 'call_seconds',
     ];
 
     protected $casts = [
         'read_at' => 'datetime',
+        'call_seconds' => 'integer',
     ];
 
     /**

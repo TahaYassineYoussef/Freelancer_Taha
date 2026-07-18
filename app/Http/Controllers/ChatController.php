@@ -196,6 +196,9 @@ class ChatController extends Controller
                 'attachment_url' => $m->attachmentUrl(),
                 'attachment_name' => $m->attachment_name,
                 'attachment_mime' => $m->attachment_mime,
+                'call_kind' => $m->call_kind,
+                'call_status' => $m->call_status,
+                'call_seconds' => $m->call_seconds,
                 'read' => $m->read_at !== null,
                 'created_at' => $m->created_at,
             ]);

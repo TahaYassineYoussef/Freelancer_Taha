@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Message;
 use App\Models\Signal;
 use App\Models\User;
+use App\Notifications\ActivityNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Global signalling for audio/video calls. Unlike the chat poll (which is tied
@@ -68,6 +70,56 @@ class CallController extends Controller
             'kind' => $data['kind'],
             'payload' => $data['payload'] ?? null,
         ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Record how a call ended. Called once by the caller when the call closes.
+     * Drops a call-log entry into the conversation (shown as a Messenger-style
+     * card to both people) and, for a missed call, notifies the person who
+     * missed it via the bell + email.
+     */
+    public function log(Request $request): JsonResponse
+    {
+        $me = $request->user();
+
+        $data = $request->validate([
+            'to_id' => ['required', 'integer', 'exists:users,id'],
+            'kind' => ['required', 'string', 'in:video,voice'],
+            'status' => ['required', 'string', 'in:completed,missed,declined'],
+            'seconds' => ['nullable', 'integer', 'min:0', 'max:86400'],
+        ]);
+
+        $target = User::findOrFail($data['to_id']);
+        $this->assertCanCall($me, $target);
+
+        Message::create([
+            'sender_id' => $me->id,
+            'receiver_id' => $target->id,
+            'call_kind' => $data['kind'],
+            'call_status' => $data['status'],
+            'call_seconds' => $data['seconds'] ?? null,
+        ]);
+
+        if ($data['status'] === 'missed') {
+            $video = $data['kind'] === 'video';
+            $notification = new ActivityNotification(
+                'call',
+                'Missed '.($video ? 'video' : 'voice').' call',
+                $me->name.' tried to reach you'.($video ? ' on a video call' : '').'.',
+                route('chat.index', ['with' => $me->id]),
+                $video ? '📹' : '📞',
+            );
+
+            dispatch(function () use ($target, $notification) {
+                try {
+                    $target->notify($notification);
+                } catch (\Throwable $e) {
+                    Log::warning('Missed-call notification failed: '.$e->getMessage());
+                }
+            })->afterResponse();
+        }
 
         return response()->json(['ok' => true]);
     }

@@ -15,6 +15,31 @@ function isImage(mime) {
     return typeof mime === 'string' && mime.startsWith('image/');
 }
 
+function fmtDuration(s) {
+    if (!s) return null;
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+/** Messenger-style centered card for a call event in the thread. */
+function CallCard({ m }) {
+    const video = m.call_kind === 'video';
+    const icon = video ? '📹' : '📞';
+    let label;
+    if (m.call_status === 'completed') label = `${video ? 'Video' : 'Voice'} call ended${m.call_seconds ? ` · ${fmtDuration(m.call_seconds)}` : ''}`;
+    else if (m.call_status === 'missed') label = `Missed ${video ? 'video' : 'voice'} call`;
+    else label = `${video ? 'Video' : 'Voice'} call declined`;
+    const danger = m.call_status !== 'completed';
+    return (
+        <div className="my-1 flex justify-center">
+            <span className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold ${danger ? 'bg-red-500/10 text-red-300' : 'bg-white/5 text-gray-300'}`}>
+                <span>{icon}</span>
+                {label}
+                <span className="text-gray-500">· {fmtTime(m.created_at)}</span>
+            </span>
+        </div>
+    );
+}
+
 /**
  * Voice/video call buttons. Kept as its own component so its useCallContext()
  * runs INSIDE the CallProvider (which lives in PanelLayout, below this page).
@@ -165,7 +190,7 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
 
     // Index of my last message, to show a single Sent/Seen receipt beneath it.
     const myLastIndex = (() => {
-        for (let i = messages.length - 1; i >= 0; i--) if (messages[i].sender_id === meId) return i;
+        for (let i = messages.length - 1; i >= 0; i--) if (messages[i].sender_id === meId && !messages[i].call_status) return i;
         return -1;
     })();
 
@@ -214,6 +239,7 @@ export default function Chat({ partners, selectedPartner, messages: initialMessa
                             <div className="flex-1 space-y-1.5 overflow-y-auto px-5 py-4">
                                 {messages.length === 0 && <p className="mt-10 text-center text-sm text-gray-500">No messages yet. Say hello 👋</p>}
                                 {messages.map((m, i) => {
+                                    if (m.call_status) return <CallCard key={m.id} m={m} />;
                                     const mine = m.sender_id === meId;
                                     return (
                                         <div key={m.id}>

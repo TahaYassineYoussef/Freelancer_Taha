@@ -28,6 +28,12 @@ export default function CallProvider({ children }) {
     const call = useCall({
         sendSignal,
         onEnd: () => { peerRef.current = { id: null, name: null }; setPeerName(null); },
+        // Caller records how the call ended → call-log card (+ missed notification).
+        onCallEnded: ({ video, status, seconds }) => {
+            const to = peerRef.current.id;
+            if (!to) return;
+            window.axios.post(route('calls.log'), { to_id: to, kind: video ? 'video' : 'voice', status, seconds }).catch(() => {});
+        },
     });
 
     const startCall = (peerId, name, video) => {

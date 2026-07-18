@@ -70,7 +70,7 @@ function startRinging(incoming) {
     };
 }
 
-export default function useCall({ sendSignal, onEnd }) {
+export default function useCall({ sendSignal, onEnd, onCallEnded }) {
     const [state, setState] = useState('idle'); // idle | calling | incoming | connected
     const [callType, setCallType] = useState('video'); // video | audio
     const [muted, setMuted] = useState(false);
@@ -84,11 +84,26 @@ export default function useCall({ sendSignal, onEnd }) {
     const pendingIce = useRef([]);
     const incomingOffer = useRef(null);
 
+    // Outcome tracking so we can write a single call-log entry when it ends.
+    const isCallerRef = useRef(false);   // did I place this call?
+    const connectedRef = useRef(false);  // did it ever connect?
+    const declinedRef = useRef(false);   // did the other side decline?
+    const loggedRef = useRef(false);     // have we already logged this call?
+    const callTypeRef = useRef('video');
+    const secondsRef = useRef(0);
+    const hangupRef = useRef(null);
+
+    const applyCallType = (video) => {
+        callTypeRef.current = video ? 'video' : 'voice';
+        setCallType(video ? 'video' : 'audio');
+    };
+
     // Call timer while connected.
     useEffect(() => {
         if (state !== 'connected') return;
         setSeconds(0);
-        const id = setInterval(() => setSeconds((s) => s + 1), 1000);
+        secondsRef.current = 0;
+        const id = setInterval(() => setSeconds((s) => { secondsRef.current = s + 1; return s + 1; }), 1000);
         return () => clearInterval(id);
     }, [state]);
 
@@ -97,6 +112,13 @@ export default function useCall({ sendSignal, onEnd }) {
         if (state !== 'calling' && state !== 'incoming') return;
         const stop = startRinging(state === 'incoming');
         return () => stop();
+    }, [state]);
+
+    // Give up on an unanswered outgoing call after 35s (counts as missed).
+    useEffect(() => {
+        if (state !== 'calling') return;
+        const t = setTimeout(() => hangupRef.current?.(), 35000);
+        return () => clearTimeout(t);
     }, [state]);
 
     const attachStream = (ref, stream) => {
@@ -121,6 +143,7 @@ export default function useCall({ sendSignal, onEnd }) {
         pc.ontrack = (e) => {
             attachStream(remoteRef, e.streams[0]);
             requestAnimationFrame(() => attachStream(remoteRef, e.streams[0]));
+            connectedRef.current = true;
             setState('connected');
         };
         pc.onconnectionstatechange = () => {
@@ -140,7 +163,16 @@ export default function useCall({ sendSignal, onEnd }) {
         pendingIce.current = [];
     };
 
+    // Write exactly one call-log entry, from the caller, capturing the outcome.
+    const maybeLog = () => {
+        if (!isCallerRef.current || loggedRef.current) return;
+        loggedRef.current = true;
+        const status = declinedRef.current ? 'declined' : (connectedRef.current ? 'completed' : 'missed');
+        onCallEnded?.({ video: callTypeRef.current === 'video', status, seconds: secondsRef.current });
+    };
+
     const cleanup = () => {
+        maybeLog();
         try { pcRef.current?.close(); } catch { /* noop */ }
         pcRef.current = null;
         localStreamRef.current?.getTracks().forEach((t) => t.stop());
@@ -149,6 +181,10 @@ export default function useCall({ sendSignal, onEnd }) {
         if (remoteRef.current) remoteRef.current.srcObject = null;
         pendingIce.current = [];
         incomingOffer.current = null;
+        isCallerRef.current = false;
+        connectedRef.current = false;
+        declinedRef.current = false;
+        secondsRef.current = 0;
         setMuted(false);
         setCamOff(false);
         setState('idle');
@@ -159,7 +195,11 @@ export default function useCall({ sendSignal, onEnd }) {
 
     const startCall = async (video = true) => {
         try {
-            setCallType(video ? 'video' : 'audio');
+            isCallerRef.current = true;
+            connectedRef.current = false;
+            declinedRef.current = false;
+            loggedRef.current = false;
+            applyCallType(video);
             const stream = await getMedia(video);
             const pc = createPeer();
             stream.getTracks().forEach((t) => pc.addTrack(t, stream));
@@ -177,6 +217,9 @@ export default function useCall({ sendSignal, onEnd }) {
         const data = incomingOffer.current;
         if (!data) return;
         try {
+            isCallerRef.current = false;
+            connectedRef.current = false;
+            loggedRef.current = false;
             const stream = await getMedia(!!data.video);
             const pc = createPeer();
             stream.getTracks().forEach((t) => pc.addTrack(t, stream));
@@ -201,6 +244,7 @@ export default function useCall({ sendSignal, onEnd }) {
         sendSignal('hangup');
         cleanup();
     };
+    hangupRef.current = hangup;
 
     const toggleMute = () => {
         const track = localStreamRef.current?.getAudioTracks()[0];
@@ -226,7 +270,7 @@ export default function useCall({ sendSignal, onEnd }) {
                     if (state !== 'idle') break; // already busy
                     const data = JSON.parse(sig.payload);
                     incomingOffer.current = data;
-                    setCallType(data.video ? 'video' : 'audio');
+                    applyCallType(!!data.video);
                     setState('incoming');
                     break;
                 }
@@ -246,6 +290,9 @@ export default function useCall({ sendSignal, onEnd }) {
                     break;
                 }
                 case 'decline':
+                    declinedRef.current = true;
+                    cleanup();
+                    break;
                 case 'hangup':
                     cleanup();
                     break;

@@ -89,6 +89,7 @@ Route::middleware('auth')->group(function () {
     // Global call signalling (polled on every page so you're rung anywhere)
     Route::get('/calls/poll', [CallController::class, 'poll'])->name('calls.poll');
     Route::post('/calls/signal', [CallController::class, 'signal'])->name('calls.signal');
+    Route::post('/calls/log', [CallController::class, 'log'])->name('calls.log');
 
     // Testimonials: clients submit, freelancer moderates
     Route::post('/testimonials', [TestimonialController::class, 'store'])
