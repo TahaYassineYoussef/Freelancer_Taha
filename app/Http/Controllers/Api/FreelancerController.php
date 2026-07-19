@@ -42,7 +42,41 @@ class FreelancerController extends Controller
                 'pending_reviews' => Testimonial::where('approved', false)->count(),
             ],
             'latest_clients' => $this->latestClients(),
+            // Task activity for the dashboard chart, matching the web's series.
+            'chart' => $this->series(Task::query()),
         ]);
+    }
+
+    /**
+     * Rows bucketed for a small chart: last 14 days, 8 weeks and 6 months.
+     *
+     * @return array<string, array<int, array{label:string, value:int}>>
+     */
+    private function series($query): array
+    {
+        $rows = (clone $query)
+            ->where('created_at', '>=', Carbon::now()->subMonths(6)->startOfDay())
+            ->get(['created_at']);
+
+        $bucket = function (int $count, string $unit, string $format, callable $start) use ($rows) {
+            $out = [];
+            for ($i = $count - 1; $i >= 0; $i--) {
+                $from = $start($i);
+                $to = (clone $from)->add($unit, 1);
+                $out[] = [
+                    'label' => $from->format($format),
+                    'value' => $rows->filter(fn ($r) => $r->created_at->gte($from) && $r->created_at->lt($to))->count(),
+                ];
+            }
+
+            return $out;
+        };
+
+        return [
+            'daily' => $bucket(14, 'day', 'M j', fn ($i) => Carbon::today()->subDays($i)),
+            'weekly' => $bucket(8, 'week', 'M j', fn ($i) => Carbon::today()->startOfWeek()->subWeeks($i)),
+            'monthly' => $bucket(6, 'month', 'M', fn ($i) => Carbon::today()->startOfMonth()->subMonths($i)),
+        ];
     }
 
     /**

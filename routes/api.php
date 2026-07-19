@@ -68,6 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/admin/inbox/{message}', [AdminController::class, 'destroyMessage']);
     Route::get('/admin/blocked', [AdminController::class, 'blocked']);
     Route::delete('/admin/blocked/{log}', [AdminController::class, 'destroyBlocked']);
+    Route::get('/admin/payment-settings', [AdminController::class, 'paymentSettings']);
+    Route::patch('/admin/payment-settings', [AdminController::class, 'updatePaymentSettings']);
     Route::get('/admin/cv', [AdminController::class, 'cv']);
     Route::patch('/admin/cv/profile', [AdminController::class, 'updateCvProfile']);
 

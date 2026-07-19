@@ -44,7 +44,38 @@ class AdminController extends Controller
             'top_pages' => $this->top($recent, 'path'),
             'top_referrers' => $this->top($recent->filter(fn ($v) => $v->referrer), 'referrer'),
             'devices' => $this->top($recent->filter(fn ($v) => $v->device), 'device'),
+            'chart' => $this->series(),
         ]);
+    }
+
+    /**
+     * Visit counts bucketed for the chart, matching the web Visitors page.
+     *
+     * @return array<string, array<int, array{label:string, value:int}>>
+     */
+    private function series(): array
+    {
+        $rows = Visit::where('created_at', '>=', Carbon::today()->subMonths(12))->get(['created_at']);
+
+        $bucket = function (int $count, string $unit, string $format, callable $start) use ($rows) {
+            $out = [];
+            for ($i = $count - 1; $i >= 0; $i--) {
+                $from = $start($i);
+                $to = (clone $from)->add($unit, 1);
+                $out[] = [
+                    'label' => $from->format($format),
+                    'value' => $rows->filter(fn ($r) => $r->created_at->gte($from) && $r->created_at->lt($to))->count(),
+                ];
+            }
+
+            return $out;
+        };
+
+        return [
+            'daily' => $bucket(14, 'day', 'M j', fn ($i) => Carbon::today()->subDays($i)),
+            'weekly' => $bucket(8, 'week', 'M j', fn ($i) => Carbon::today()->startOfWeek()->subWeeks($i)),
+            'monthly' => $bucket(12, 'month', 'M', fn ($i) => Carbon::today()->startOfMonth()->subMonths($i)),
+        ];
     }
 
     /** @return array<int, array{label:string, count:int}> */
@@ -217,6 +248,50 @@ class AdminController extends Controller
         $log->delete();
 
         return response()->json(['deleted' => true]);
+    }
+
+    // ---- Payment settings --------------------------------------------------
+
+    /**
+     * Where the freelancer receives money. The enable flags show/hide each
+     * method for clients while the credentials stay saved.
+     */
+    public function paymentSettings(Request $request): JsonResponse
+    {
+        $this->assertFreelancer($request);
+        $me = $request->user();
+
+        return response()->json([
+            'settings' => [
+                'paypal_email' => $me->paypal_email,
+                'paypal_client_id' => $me->paypal_client_id,
+                'paypal_enabled' => (bool) ($me->paypal_enabled ?? config('services.paypal.enabled')),
+                'd17_number' => $me->d17_number,
+                'd17_enabled' => (bool) ($me->d17_enabled ?? true),
+                'd17_qr_url' => $me->d17_qr ? url(Storage::url($me->d17_qr)) : null,
+            ],
+            // True when a client id already comes from .env as a fallback.
+            'env_paypal_client_id' => (bool) config('services.paypal.client_id'),
+            'paypal_mode' => config('services.paypal.mode', 'sandbox'),
+            'currency' => config('services.paypal.currency', 'USD'),
+        ]);
+    }
+
+    public function updatePaymentSettings(Request $request): JsonResponse
+    {
+        $this->assertFreelancer($request);
+
+        $data = $request->validate([
+            'paypal_email' => ['nullable', 'email', 'max:255'],
+            'paypal_client_id' => ['nullable', 'string', 'max:500'],
+            'paypal_enabled' => ['nullable', 'boolean'],
+            'd17_number' => ['nullable', 'string', 'max:50'],
+            'd17_enabled' => ['nullable', 'boolean'],
+        ]);
+
+        $request->user()->update($data);
+
+        return response()->json(['message' => 'Payment settings saved.']);
     }
 
     // ---- Manage CV ---------------------------------------------------------
