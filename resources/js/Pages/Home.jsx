@@ -507,6 +507,7 @@ function Projects({ projects }) {
 }
 
 function TaskSection({ user }) {
+    const t = useT();
     const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm({
         title: '',
         description: '',
@@ -530,28 +531,28 @@ function TaskSection({ user }) {
             <div className="mx-auto max-w-3xl px-6">
                 <SectionTitle ghost="Hire">Post a Task</SectionTitle>
                 <p className="mb-8 max-w-xl text-gray-300">
-                    Have a project in mind? Post the details below and Taha will get back to you.
+                    {t('Have a project in mind? Post the details below and Taha will get back to you.')}
                 </p>
 
                 {!user && (
                     <div className="rounded-2xl border border-gold/30 bg-gold/5 p-6 text-gray-200">
-                        Please{' '}
+                        {t('Please')}{' '}
                         <Link href={route('login')} className="font-semibold text-gold underline">
-                            log in
+                            {t('log in')}
                         </Link>{' '}
-                        or{' '}
+                        {t('or')}{' '}
                         <Link href={route('register')} className="font-semibold text-gold underline">
-                            create an account
+                            {t('create an account')}
                         </Link>{' '}
-                        to post a task and chat with Taha.
+                        {t('to post a task and chat with Taha.')}
                     </div>
                 )}
 
                 {user && !isClient && (
                     <div className="rounded-2xl border border-white/10 bg-ink-700 p-6 text-gray-300">
-                        You are signed in as the freelancer. View incoming tasks in your{' '}
+                        {t('You are signed in as the freelancer. View incoming tasks in your')}{' '}
                         <Link href={route('dashboard')} className="font-semibold text-gold underline">
-                            dashboard
+                            {t('dashboard')}
                         </Link>
                         .
                     </div>
@@ -561,38 +562,38 @@ function TaskSection({ user }) {
                     <form onSubmit={submit} className="space-y-5 rounded-2xl border border-white/5 bg-ink-700 p-6">
                         {wasSuccessful && (
                             <p className="rounded-lg bg-green-500/10 px-4 py-2 text-sm text-green-400">
-                                Your task has been posted successfully!
+                                {t('Your task has been posted successfully!')}
                             </p>
                         )}
-                        <Field label="Title" error={errors.title}>
+                        <Field label={t('Title')} error={errors.title}>
                             <input
                                 type="text"
                                 value={data.title}
                                 onChange={(e) => setData('title', e.target.value)}
                                 className={inputCls}
-                                placeholder="e.g. Build a company landing page"
+                                placeholder={t('e.g. Build a company landing page')}
                             />
                         </Field>
-                        <Field label="Description" error={errors.description}>
+                        <Field label={t('Description')} error={errors.description}>
                             <textarea
                                 rows={4}
                                 value={data.description}
                                 onChange={(e) => setData('description', e.target.value)}
                                 className={inputCls}
-                                placeholder="Describe what you need…"
+                                placeholder={t('Describe what you need…')}
                             />
                         </Field>
                         <div className="grid gap-5 sm:grid-cols-3">
-                            <Field label="Category" error={errors.category}>
+                            <Field label={t('Category')} error={errors.category}>
                                 <input
                                     type="text"
                                     value={data.category}
                                     onChange={(e) => setData('category', e.target.value)}
                                     className={inputCls}
-                                    placeholder="Web Dev"
+                                    placeholder={t('Web Dev')}
                                 />
                             </Field>
-                            <Field label="Budget ($)" error={errors.budget}>
+                            <Field label={t('Budget ($)')} error={errors.budget}>
                                 <input
                                     type="number"
                                     min="0"
@@ -603,7 +604,7 @@ function TaskSection({ user }) {
                                     placeholder="500"
                                 />
                             </Field>
-                            <Field label="Deadline" error={errors.deadline}>
+                            <Field label={t('Deadline')} error={errors.deadline}>
                                 <input
                                     type="date"
                                     value={data.deadline}
@@ -618,7 +619,7 @@ function TaskSection({ user }) {
                             disabled={processing}
                             className="rounded-full bg-gold px-8 py-3 text-sm font-bold uppercase tracking-wide text-ink transition hover:bg-gold-300 disabled:opacity-60"
                         >
-                            {processing ? 'Posting…' : 'Post Task'}
+                            {processing ? t('Posting…') : t('Post Task')}
                         </button>
                     </form>
                 )}

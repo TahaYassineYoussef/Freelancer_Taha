@@ -297,5 +297,22 @@
     "Email": "البريد الإلكتروني",
     "Leave empty to use English": "اتركه فارغًا لاستخدام الإنجليزية",
     "Total Spent": "إجمالي المصروف",
-    "Active Tasks": "المهام النشطة"
+    "Active Tasks": "المهام النشطة",
+    "Have a project in mind? Post the details below and Taha will get back to you.": "لديك مشروع في ذهنك؟ انشر التفاصيل أدناه وسيتواصل معك طه.",
+    "Your task has been posted successfully!": "تم نشر مهمتك بنجاح!",
+    "e.g. Build a company landing page": "مثال: إنشاء صفحة هبوط لشركة",
+    "Describe what you need…": "صِف ما تحتاجه…",
+    "Category": "الفئة",
+    "Web Dev": "تطوير الويب",
+    "Budget ($)": "الميزانية ($)",
+    "Deadline": "الموعد النهائي",
+    "Posting…": "جارٍ النشر…",
+    "Post Task": "نشر المهمة",
+    "Please": "يرجى",
+    "log in": "تسجيل الدخول",
+    "or": "أو",
+    "create an account": "إنشاء حساب",
+    "to post a task and chat with Taha.": "لنشر مهمة والدردشة مع طه.",
+    "You are signed in as the freelancer. View incoming tasks in your": "أنت مسجّل الدخول كمستقل. اطّلع على المهام الواردة في",
+    "dashboard": "لوحة التحكم"
 }
