@@ -71,6 +71,17 @@ class CallController extends Controller
             'payload' => $data['payload'] ?? null,
         ]);
 
+        // A ringing phone can't poll while its app is closed, so an offer is
+        // also pushed. The other kinds only matter once the app is awake.
+        if ($data['kind'] === 'offer') {
+            \App\Support\Fcm::ring($target->id, [
+                'type' => 'call',
+                'from_id' => $me->id,
+                'from_name' => $me->name,
+                'video' => str_contains((string) ($data['payload'] ?? ''), '"video":true') ? '1' : '0',
+            ]);
+        }
+
         return response()->json(['ok' => true]);
     }
 

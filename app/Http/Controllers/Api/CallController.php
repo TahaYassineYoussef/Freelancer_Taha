@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\DeviceToken;
 use App\Models\Message;
 use App\Models\Signal;
 use App\Models\User;
@@ -70,6 +71,17 @@ class CallController extends Controller
             'payload' => $data['payload'] ?? null,
         ]);
 
+        // A ringing phone can't poll while its app is closed, so an offer is
+        // also pushed. The other kinds only matter once the app is awake.
+        if ($data['kind'] === 'offer') {
+            \App\Support\Fcm::ring($target->id, [
+                'type' => 'call',
+                'from_id' => $me->id,
+                'from_name' => $me->name,
+                'video' => str_contains((string) ($data['payload'] ?? ''), '"video":true') ? '1' : '0',
+            ]);
+        }
+
         return response()->json(['ok' => true]);
     }
 
@@ -99,6 +111,37 @@ class CallController extends Controller
             'call_status' => $data['status'],
             'call_seconds' => $data['seconds'] ?? null,
         ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Register this device for call pushes. Re-registering the same token just
+     * moves it to the current user (a shared phone, or a re-login).
+     */
+    public function registerDevice(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'token' => ['required', 'string', 'max:512'],
+            'platform' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        DeviceToken::updateOrCreate(
+            ['token' => $data['token']],
+            ['user_id' => $request->user()->id, 'platform' => $data['platform'] ?? 'android'],
+        );
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** Called on logout so the phone stops ringing for the old account. */
+    public function forgetDevice(Request $request): JsonResponse
+    {
+        $data = $request->validate(['token' => ['required', 'string', 'max:512']]);
+
+        DeviceToken::where('token', $data['token'])
+            ->where('user_id', $request->user()->id)
+            ->delete();
 
         return response()->json(['ok' => true]);
     }

@@ -43,3 +43,5 @@ Thumbs.db
 /mobile/ios/Flutter/Flutter.framework
 /mobile/ios/Flutter/Generated.xcconfig
 /mobile/ios/Flutter/flutter_export_environment.sh
+storage/app/firebase-service-account.json
+mobile/android/app/google-services.json

@@ -86,6 +86,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/calls/poll', [CallController::class, 'poll']);
     Route::post('/calls/signal', [CallController::class, 'signal']);
     Route::post('/calls/log', [CallController::class, 'log']);
+    Route::post('/devices', [CallController::class, 'registerDevice']);
+    Route::delete('/devices', [CallController::class, 'forgetDevice']);
 
     // Chat
     Route::get('/chat/partners', [ChatController::class, 'partners']);

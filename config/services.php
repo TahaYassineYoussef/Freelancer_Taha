@@ -36,6 +36,12 @@ return [
     ],
 
     // Google sign-in (Laravel Socialite).
+    // Firebase Cloud Messaging: rings the mobile app for incoming calls even
+    // when it is closed. Point this at the service-account JSON.
+    'fcm' => [
+        'credentials' => env('FCM_CREDENTIALS', storage_path('app/firebase-service-account.json')),
+    ],
+
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
