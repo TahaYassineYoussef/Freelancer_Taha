@@ -28,6 +28,42 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->middleware('track')->name('home');
 
+/*
+ * PayPal checkout surface for the mobile app, rendered inside an in-app web
+ * view. The app is already authenticated and passes the amount and the
+ * freelancer's client id, so this page touches no database and leaks nothing.
+ * After capture it redirects to /paypal/done, which the app intercepts to read
+ * the order id and record the payment through the authenticated API.
+ */
+Route::get('/paypal/checkout', function (\Illuminate\Http\Request $request) {
+    $data = $request->validate([
+        'client_id' => ['required', 'string', 'max:255'],
+        'currency' => ['required', 'string', 'size:3'],
+        'amount' => ['required', 'numeric', 'min:0.01'],
+        'title' => ['nullable', 'string', 'max:255'],
+    ]);
+
+    return view('paypal.checkout', [
+        'clientId' => $data['client_id'],
+        'currency' => strtoupper($data['currency']),
+        'amount' => number_format((float) $data['amount'], 2, '.', ''),
+        'title' => $data['title'] ?? 'Task payment',
+    ]);
+})->name('paypal.checkout');
+
+// Intercepted by the app's web view; only rendered if opened in a plain browser.
+Route::get('/paypal/done', function (\Illuminate\Http\Request $r) {
+    $ok = $r->filled('order_id');
+
+    return view('auth.google-done', [
+        'ok' => $ok,
+        'heading' => $ok ? 'Payment complete' : 'Payment cancelled',
+        'body' => $ok
+            ? 'Your PayPal payment went through. You can close this tab and go back to the app.'
+            : 'The payment was cancelled. You can close this tab and try again from the app.',
+    ]);
+})->name('paypal.done');
+
 // Switch interface language (en / fr / ar) — public, remembered in session
 Route::post('/locale/{locale}', [\App\Http\Controllers\LocaleController::class, 'update'])->name('locale.update');
 

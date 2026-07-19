@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Testimonial;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class PortfolioController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
+        $locale = $this->locale($request);
+
         $f = User::where('role', 'freelancer')
             ->with([
                 'diplomas' => fn ($q) => $q->orderByDesc('end_year'),
@@ -27,14 +31,26 @@ class PortfolioController extends Controller
         }
 
         return response()->json([
+            'locale' => $locale,
             'freelancer' => [
                 'name' => $f->name,
                 'email' => $f->email,
-                'headline' => $f->headline,
-                'bio' => $f->bio,
+                // Per-language copy, falling back to the default (English) column.
+                'headline' => $this->localized($f, 'headline', $locale),
+                'bio' => $this->localized($f, 'bio', $locale),
                 'location' => $f->location,
                 'phone' => $f->phone,
                 'avatar_url' => $f->avatar ? $this->url($f->avatar) : null,
+                'cv_url' => url('/cv/download'),
+                'testimonials' => Testimonial::approved()
+                    ->with('user:id,name')
+                    ->latest()
+                    ->get()
+                    ->map(fn (Testimonial $t) => [
+                        'id' => $t->id, 'rating' => $t->rating, 'body' => $t->body,
+                        'role_title' => $t->role_title, 'author' => $t->user?->name,
+                        'created_at' => $t->created_at?->toIso8601String(),
+                    ]),
                 'skills' => $f->skills->map(fn ($s) => [
                     'id' => $s->id, 'name' => $s->name, 'level' => $s->level,
                 ]),
@@ -71,5 +87,30 @@ class PortfolioController extends Controller
     private function url(string $path): string
     {
         return url(Storage::url($path));
+    }
+
+    /**
+     * Locale requested by the app: `?locale=fr`, else the Accept-Language
+     * header, else the app default. Only en/fr/ar are supported.
+     */
+    private function locale(Request $request): string
+    {
+        $wanted = $request->query('locale')
+            ?: substr((string) $request->header('Accept-Language'), 0, 2);
+
+        return in_array($wanted, ['en', 'fr', 'ar'], true) ? $wanted : 'en';
+    }
+
+    /**
+     * `headline_fr` / `bio_ar` … falling back to the base column when the
+     * translation is empty, mirroring HomeController.
+     */
+    private function localized(User $f, string $field, string $locale): ?string
+    {
+        if ($locale === 'en') {
+            return $f->{$field};
+        }
+
+        return $f->{"{$field}_{$locale}"} ?: $f->{$field};
     }
 }

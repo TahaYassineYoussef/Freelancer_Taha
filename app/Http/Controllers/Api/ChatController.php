@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ChatController extends Controller
 {
@@ -18,7 +19,21 @@ class ChatController extends Controller
             ? User::where('role', 'client')->orderBy('name')->get(['id', 'name', 'role'])
             : User::where('role', 'freelancer')->orderBy('name')->get(['id', 'name', 'role']);
 
-        return response()->json(['partners' => $partners]);
+        // Unread badge per conversation, so the list mirrors the web app.
+        $unread = Message::where('receiver_id', $me->id)
+            ->whereNull('read_at')
+            ->selectRaw('sender_id, COUNT(*) as total')
+            ->groupBy('sender_id')
+            ->pluck('total', 'sender_id');
+
+        return response()->json([
+            'partners' => $partners->map(fn (User $p) => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'role' => $p->role,
+                'unread' => (int) ($unread[$p->id] ?? 0),
+            ])->values(),
+        ]);
     }
 
     public function messages(Request $request, User $user): JsonResponse
@@ -42,14 +57,28 @@ class ChatController extends Controller
         $this->assertCanChat($me, $user);
 
         $data = $request->validate([
-            'body' => ['required', 'string', 'max:2000'],
+            'body' => ['nullable', 'string', 'max:2000'],
+            'attachment' => ['nullable', 'file', 'max:25600'], // 25 MB, same as web
         ]);
 
-        Message::create([
+        if (blank($data['body'] ?? null) && ! $request->hasFile('attachment')) {
+            abort(422, 'Type a message or attach a file.');
+        }
+
+        $payload = [
             'sender_id' => $me->id,
             'receiver_id' => $user->id,
-            'body' => $data['body'],
-        ]);
+            'body' => $data['body'] ?? '',
+        ];
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $payload['attachment_path'] = $file->store('chat', 'public');
+            $payload['attachment_name'] = $file->getClientOriginalName();
+            $payload['attachment_mime'] = $file->getClientMimeType();
+        }
+
+        Message::create($payload);
 
         return response()->json([
             'messages' => $this->conversation($me->id, $user->id),
@@ -71,6 +100,18 @@ class ChatController extends Controller
             ->where(fn ($q) => $q->where('sender_id', $meId)->where('receiver_id', $otherId))
             ->orWhere(fn ($q) => $q->where('sender_id', $otherId)->where('receiver_id', $meId))
             ->orderBy('created_at')
-            ->get(['id', 'sender_id', 'receiver_id', 'body', 'created_at']);
+            ->get()
+            ->map(fn (Message $m) => [
+                'id' => $m->id,
+                'sender_id' => $m->sender_id,
+                'receiver_id' => $m->receiver_id,
+                'body' => $m->body,
+                'created_at' => $m->created_at?->toIso8601String(),
+                'read' => $m->read_at !== null,
+                'attachment_url' => $m->attachment_path ? url(Storage::url($m->attachment_path)) : null,
+                'attachment_name' => $m->attachment_name,
+                'attachment_mime' => $m->attachment_mime,
+            ])
+            ->values();
     }
 }
