@@ -13,6 +13,7 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
         paypal_client_id: settings.paypal_client_id ?? '',
         paypal_enabled: settings.paypal_enabled ?? true,
         d17_number: settings.d17_number ?? '',
+        d17_enabled: settings.d17_enabled ?? true,
     });
     const [qr, setQr] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -28,7 +29,7 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
         router.post(
             route('payment.settings.update'),
             // Booleans must go over FormData as 1/0 for Laravel's `boolean` rule.
-            { ...data, paypal_enabled: data.paypal_enabled ? 1 : 0, d17_qr: qr },
+            { ...data, paypal_enabled: data.paypal_enabled ? 1 : 0, d17_enabled: data.d17_enabled ? 1 : 0, d17_qr: qr },
             {
                 preserveScroll: true,
                 forceFormData: true,
@@ -132,12 +133,35 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
 
                 {/* D17 */}
                 <section className="rounded-2xl border border-white/5 bg-ink-700 p-6">
-                    <div className="mb-4 flex items-center justify-between">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <h2 className="text-lg font-bold text-white">D17 <span className="text-sm font-normal text-gray-500">(DigiPost)</span></h2>
-                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${data.d17_number ? 'bg-green-500/15 text-green-300' : 'bg-red-500/15 text-red-300'}`}>
-                            {data.d17_number ? t('Active') : t('Not configured')}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-3">
+                            {/* Show / hide the D17 button for clients — details are kept either way. */}
+                            <button
+                                type="button"
+                                onClick={() => set('d17_enabled', !data.d17_enabled)}
+                                className="flex items-center gap-2"
+                                aria-pressed={data.d17_enabled}
+                                title={data.d17_enabled ? t('Clients can pay with D17') : t('The D17 button is hidden from clients')}
+                            >
+                                <span className={`relative h-6 w-11 flex-shrink-0 rounded-full transition ${data.d17_enabled ? 'bg-gold' : 'bg-white/15'}`}>
+                                    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${data.d17_enabled ? 'left-[22px]' : 'left-0.5'}`} />
+                                </span>
+                                <span className={`text-xs font-semibold ${data.d17_enabled ? 'text-gold' : 'text-gray-500'}`}>
+                                    {data.d17_enabled ? t('Shown to clients') : t('Hidden from clients')}
+                                </span>
+                            </button>
+                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${data.d17_number ? 'bg-green-500/15 text-green-300' : 'bg-red-500/15 text-red-300'}`}>
+                                {data.d17_number ? t('Active') : t('Not configured')}
+                            </span>
+                        </div>
                     </div>
+
+                    {!data.d17_enabled && (
+                        <p className="mb-4 rounded-xl border border-white/10 bg-ink-800 px-4 py-3 text-xs text-gray-400">
+                            {t('The D17 button is hidden — your wallet details below are still saved; switch it back on anytime.')}
+                        </p>
+                    )}
 
                     <div className="space-y-4">
                         <label className="block">

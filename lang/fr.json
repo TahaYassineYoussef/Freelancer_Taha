@@ -342,5 +342,8 @@
     "Clients can pay with PayPal": "Les clients peuvent payer avec PayPal",
     "The PayPal button is hidden from clients": "Le bouton PayPal est masqué aux clients",
     "The PayPal button is hidden — clients only see D17. Your details below are still saved; switch it back on anytime.": "Le bouton PayPal est masqué — les clients ne voient que D17. Vos informations ci-dessous restent enregistrées ; réactivez-le quand vous voulez.",
-    "No payment method configured yet": "Aucun moyen de paiement configuré"
+    "No payment method configured yet": "Aucun moyen de paiement configuré",
+    "Clients can pay with D17": "Les clients peuvent payer avec D17",
+    "The D17 button is hidden from clients": "Le bouton D17 est masqué aux clients",
+    "The D17 button is hidden — your wallet details below are still saved; switch it back on anytime.": "Le bouton D17 est masqué — les informations de votre portefeuille ci-dessous restent enregistrées ; réactivez-le quand vous voulez."
 }

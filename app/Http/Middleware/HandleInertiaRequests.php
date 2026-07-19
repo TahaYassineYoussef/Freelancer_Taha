@@ -107,6 +107,8 @@ class HandleInertiaRequests extends Middleware
         return [
             'number' => $freelancer?->d17_number,
             'qr' => $freelancer?->d17_qr ? Storage::url($freelancer->d17_qr) : null,
+            // Show/hide toggle from Payment Settings (wallet details stay saved).
+            'enabled' => (bool) ($freelancer?->d17_enabled ?? true),
         ];
     }
 
@@ -141,6 +143,6 @@ class HandleInertiaRequests extends Middleware
     private function freelancer(): ?User
     {
         return $this->freelancer ??= User::where('role', 'freelancer')
-            ->first(['id', 'd17_number', 'd17_qr', 'paypal_client_id', 'paypal_enabled']);
+            ->first(['id', 'd17_number', 'd17_qr', 'd17_enabled', 'paypal_client_id', 'paypal_enabled']);
     }
 }

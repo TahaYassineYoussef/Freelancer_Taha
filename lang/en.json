@@ -342,5 +342,8 @@
     "Clients can pay with PayPal": "Clients can pay with PayPal",
     "The PayPal button is hidden from clients": "The PayPal button is hidden from clients",
     "The PayPal button is hidden — clients only see D17. Your details below are still saved; switch it back on anytime.": "The PayPal button is hidden — clients only see D17. Your details below are still saved; switch it back on anytime.",
-    "No payment method configured yet": "No payment method configured yet"
+    "No payment method configured yet": "No payment method configured yet",
+    "Clients can pay with D17": "Clients can pay with D17",
+    "The D17 button is hidden from clients": "The D17 button is hidden from clients",
+    "The D17 button is hidden — your wallet details below are still saved; switch it back on anytime.": "The D17 button is hidden — your wallet details below are still saved; switch it back on anytime."
 }

@@ -291,8 +291,8 @@ export default function Dashboard({ role, tasks, stats, kpis, chart, latestClien
                                             {!task.is_paid && !task.pending_payment && task.budget && (
                                                 <div className="w-56 space-y-2">
                                                     {paypal?.enabled && paypal?.clientId && <PayPalButton task={task} clientId={paypal.clientId} currency={paypal.currency} />}
-                                                    {d17?.number && <D17Button task={task} />}
-                                                    {!(paypal?.enabled && paypal?.clientId) && !d17?.number && <span className="block text-right text-xs text-gray-500">{t('No payment method configured yet')}</span>}
+                                                    {d17?.enabled && d17?.number && <D17Button task={task} />}
+                                                    {!(paypal?.enabled && paypal?.clientId) && !(d17?.enabled && d17?.number) && <span className="block text-right text-xs text-gray-500">{t('No payment method configured yet')}</span>}
                                                 </div>
                                             )}
                                             <button onClick={() => remove(task)} className="text-sm text-red-400 hover:text-red-300">Delete</button>

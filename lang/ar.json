@@ -346,5 +346,8 @@
     "Clients can pay with PayPal": "يمكن للعملاء الدفع عبر PayPal",
     "The PayPal button is hidden from clients": "زر PayPal مخفي عن العملاء",
     "The PayPal button is hidden — clients only see D17. Your details below are still saved; switch it back on anytime.": "زر PayPal مخفي — يرى العملاء D17 فقط. بياناتك أدناه محفوظة؛ يمكنك إعادة تفعيله في أي وقت.",
-    "No payment method configured yet": "لم يتم إعداد أي وسيلة دفع بعد"
+    "No payment method configured yet": "لم يتم إعداد أي وسيلة دفع بعد",
+    "Clients can pay with D17": "يمكن للعملاء الدفع عبر D17",
+    "The D17 button is hidden from clients": "زر D17 مخفي عن العملاء",
+    "The D17 button is hidden — your wallet details below are still saved; switch it back on anytime.": "زر D17 مخفي — بيانات محفظتك أدناه محفوظة؛ يمكنك إعادة تفعيله في أي وقت."
 }

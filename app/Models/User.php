@@ -12,7 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'google_id', 'role', 'headline', 'headline_fr', 'headline_ar', 'bio', 'bio_fr', 'bio_ar', 'location', 'phone', 'avatar', 'd17_number', 'd17_qr', 'paypal_email', 'paypal_client_id', 'paypal_enabled'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'role', 'headline', 'headline_fr', 'headline_ar', 'bio', 'bio_fr', 'bio_ar', 'location', 'phone', 'avatar', 'd17_number', 'd17_qr', 'd17_enabled', 'paypal_email', 'paypal_client_id', 'paypal_enabled'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -30,6 +30,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'paypal_enabled' => 'boolean',
+            'd17_enabled' => 'boolean',
         ];
     }
 
