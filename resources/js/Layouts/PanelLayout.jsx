@@ -80,14 +80,31 @@ export default function PanelLayout({ title, children }) {
     // a click) and while the tab is hidden.
     const busyRef = useRef(false);
     useEffect(() => {
+        if (!user) return; // logged out — nothing to refresh
+
         const offStart = router.on('start', () => { busyRef.current = true; });
         const offFinish = router.on('finish', () => { busyRef.current = false; });
+
         const id = setInterval(() => {
             if (document.hidden || busyRef.current) return;
             router.reload({ preserveState: true, preserveScroll: true });
         }, 7000);
-        return () => { clearInterval(id); offStart(); offFinish(); };
-    }, []);
+
+        // If the session or role changes mid-refresh (e.g. you log out, or switch
+        // to a client account while sitting on a freelancer-only page), the server
+        // answers 401/403/419. Without this, Inertia would splash that raw error
+        // full-screen. Send the user to the login page instead.
+        const offInvalid = router.on('invalid', (event) => {
+            const status = event.detail.response?.status;
+            if ([401, 403, 419].includes(status)) {
+                event.preventDefault();
+                clearInterval(id);
+                window.location.href = route('login');
+            }
+        });
+
+        return () => { clearInterval(id); offStart(); offFinish(); offInvalid(); };
+    }, [user?.id]);
 
     const nav = (
         <nav className="space-y-1">
