@@ -11,6 +11,7 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
     const [data, setData] = useState({
         paypal_email: settings.paypal_email ?? '',
         paypal_client_id: settings.paypal_client_id ?? '',
+        paypal_enabled: settings.paypal_enabled ?? true,
         d17_number: settings.d17_number ?? '',
     });
     const [qr, setQr] = useState(null);
@@ -26,7 +27,8 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
         setProcessing(true);
         router.post(
             route('payment.settings.update'),
-            { ...data, d17_qr: qr },
+            // Booleans must go over FormData as 1/0 for Laravel's `boolean` rule.
+            { ...data, paypal_enabled: data.paypal_enabled ? 1 : 0, d17_qr: qr },
             {
                 preserveScroll: true,
                 forceFormData: true,
@@ -61,12 +63,35 @@ export default function PaymentSettings({ settings, d17QrUrl, envPaypalClientId,
 
                 {/* PayPal */}
                 <section className="rounded-2xl border border-white/5 bg-ink-700 p-6">
-                    <div className="mb-4 flex items-center justify-between">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <h2 className="text-lg font-bold text-white">PayPal</h2>
-                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${paypalReady ? 'bg-green-500/15 text-green-300' : 'bg-red-500/15 text-red-300'}`}>
-                            {paypalReady ? `${t('Active')} · ${paypalMode}` : t('Not configured')}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-3">
+                            {/* Show / hide the button for clients — credentials are kept either way. */}
+                            <button
+                                type="button"
+                                onClick={() => set('paypal_enabled', !data.paypal_enabled)}
+                                className="flex items-center gap-2"
+                                aria-pressed={data.paypal_enabled}
+                                title={data.paypal_enabled ? t('Clients can pay with PayPal') : t('The PayPal button is hidden from clients')}
+                            >
+                                <span className={`relative h-6 w-11 flex-shrink-0 rounded-full transition ${data.paypal_enabled ? 'bg-gold' : 'bg-white/15'}`}>
+                                    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${data.paypal_enabled ? 'left-[22px]' : 'left-0.5'}`} />
+                                </span>
+                                <span className={`text-xs font-semibold ${data.paypal_enabled ? 'text-gold' : 'text-gray-500'}`}>
+                                    {data.paypal_enabled ? t('Shown to clients') : t('Hidden from clients')}
+                                </span>
+                            </button>
+                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${paypalReady ? 'bg-green-500/15 text-green-300' : 'bg-red-500/15 text-red-300'}`}>
+                                {paypalReady ? `${t('Active')} · ${paypalMode}` : t('Not configured')}
+                            </span>
+                        </div>
                     </div>
+
+                    {!data.paypal_enabled && (
+                        <p className="mb-4 rounded-xl border border-white/10 bg-ink-800 px-4 py-3 text-xs text-gray-400">
+                            {t('The PayPal button is hidden — clients only see D17. Your details below are still saved; switch it back on anytime.')}
+                        </p>
+                    )}
 
                     <div className="space-y-4">
                         <label className="block">

@@ -67,8 +67,9 @@ class HandleInertiaRequests extends Middleware
                 'clientId' => $this->freelancer()?->paypal_client_id
                     ?: config('services.paypal.client_id'),
                 'currency' => config('services.paypal.currency', 'USD'),
-                // Lets the button be hidden without touching any credentials.
-                'enabled' => (bool) config('services.paypal.enabled'),
+                // Show/hide toggle from Payment Settings (credentials stay saved).
+                // Falls back to the .env switch when no account exists yet.
+                'enabled' => (bool) ($this->freelancer()?->paypal_enabled ?? config('services.paypal.enabled')),
             ],
             'd17' => fn () => $this->d17Details(),
             'locale' => app()->getLocale(),
@@ -140,6 +141,6 @@ class HandleInertiaRequests extends Middleware
     private function freelancer(): ?User
     {
         return $this->freelancer ??= User::where('role', 'freelancer')
-            ->first(['id', 'd17_number', 'd17_qr', 'paypal_client_id']);
+            ->first(['id', 'd17_number', 'd17_qr', 'paypal_client_id', 'paypal_enabled']);
     }
 }

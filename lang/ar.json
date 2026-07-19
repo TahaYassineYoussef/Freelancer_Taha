@@ -340,5 +340,11 @@
     "Returning": "عائد",
     "desktop": "حاسوب",
     "mobile": "هاتف",
-    "tablet": "لوحي"
+    "tablet": "لوحي",
+    "Shown to clients": "ظاهر للعملاء",
+    "Hidden from clients": "مخفي عن العملاء",
+    "Clients can pay with PayPal": "يمكن للعملاء الدفع عبر PayPal",
+    "The PayPal button is hidden from clients": "زر PayPal مخفي عن العملاء",
+    "The PayPal button is hidden — clients only see D17. Your details below are still saved; switch it back on anytime.": "زر PayPal مخفي — يرى العملاء D17 فقط. بياناتك أدناه محفوظة؛ يمكنك إعادة تفعيله في أي وقت.",
+    "No payment method configured yet": "لم يتم إعداد أي وسيلة دفع بعد"
 }

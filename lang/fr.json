@@ -336,5 +336,11 @@
     "Returning": "Récurrent",
     "desktop": "ordinateur",
     "mobile": "mobile",
-    "tablet": "tablette"
+    "tablet": "tablette",
+    "Shown to clients": "Visible par les clients",
+    "Hidden from clients": "Masqué aux clients",
+    "Clients can pay with PayPal": "Les clients peuvent payer avec PayPal",
+    "The PayPal button is hidden from clients": "Le bouton PayPal est masqué aux clients",
+    "The PayPal button is hidden — clients only see D17. Your details below are still saved; switch it back on anytime.": "Le bouton PayPal est masqué — les clients ne voient que D17. Vos informations ci-dessous restent enregistrées ; réactivez-le quand vous voulez.",
+    "No payment method configured yet": "Aucun moyen de paiement configuré"
 }

@@ -19,7 +19,7 @@ class PaymentSettingsController extends Controller
         $me = $request->user();
 
         return Inertia::render('PaymentSettings', [
-            'settings' => $me->only(['paypal_email', 'paypal_client_id', 'd17_number']),
+            'settings' => $me->only(['paypal_email', 'paypal_client_id', 'd17_number', 'paypal_enabled']),
             'd17QrUrl' => $me->d17_qr ? Storage::url($me->d17_qr) : null,
             // True when a client ID is already coming from .env as a fallback.
             'envPaypalClientId' => (bool) config('services.paypal.client_id'),
@@ -33,6 +33,8 @@ class PaymentSettingsController extends Controller
         $data = $request->validate([
             'paypal_email' => ['nullable', 'email', 'max:255'],
             'paypal_client_id' => ['nullable', 'string', 'max:500'],
+            // Show/hide the PayPal button for clients. Credentials are kept either way.
+            'paypal_enabled' => ['nullable', 'boolean'],
             'd17_number' => ['nullable', 'string', 'max:50'],
             'd17_qr' => ['nullable', 'image', 'max:4096'],
         ]);

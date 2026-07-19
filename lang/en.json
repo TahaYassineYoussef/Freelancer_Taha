@@ -336,5 +336,11 @@
     "Returning": "Returning",
     "desktop": "desktop",
     "mobile": "mobile",
-    "tablet": "tablet"
+    "tablet": "tablet",
+    "Shown to clients": "Shown to clients",
+    "Hidden from clients": "Hidden from clients",
+    "Clients can pay with PayPal": "Clients can pay with PayPal",
+    "The PayPal button is hidden from clients": "The PayPal button is hidden from clients",
+    "The PayPal button is hidden — clients only see D17. Your details below are still saved; switch it back on anytime.": "The PayPal button is hidden — clients only see D17. Your details below are still saved; switch it back on anytime.",
+    "No payment method configured yet": "No payment method configured yet"
 }
