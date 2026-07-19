@@ -67,6 +67,8 @@ class HandleInertiaRequests extends Middleware
                 'clientId' => $this->freelancer()?->paypal_client_id
                     ?: config('services.paypal.client_id'),
                 'currency' => config('services.paypal.currency', 'USD'),
+                // Lets the button be hidden without touching any credentials.
+                'enabled' => (bool) config('services.paypal.enabled'),
             ],
             'd17' => fn () => $this->d17Details(),
             'locale' => app()->getLocale(),

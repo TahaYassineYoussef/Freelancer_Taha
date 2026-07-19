@@ -115,7 +115,7 @@ export default function MyTasks({ tasks, counts }) {
                                     )}
                                     {!task.is_paid && !task.pending_payment && task.budget && (
                                         <div className="w-56 space-y-2">
-                                            {paypal?.clientId && <PayPalButton task={task} clientId={paypal.clientId} currency={paypal.currency} />}
+                                            {paypal?.enabled && paypal?.clientId && <PayPalButton task={task} clientId={paypal.clientId} currency={paypal.currency} />}
                                             {d17?.number && <D17Button task={task} />}
                                         </div>
                                     )}

@@ -50,6 +50,9 @@ return [
     ],
 
     'paypal' => [
+        // Set PAYPAL_ENABLED=false to hide the PayPal button from clients while
+        // keeping every credential below intact — flip it back to true anytime.
+        'enabled' => env('PAYPAL_ENABLED', true),
         'mode' => env('PAYPAL_MODE', 'sandbox'),
         'client_id' => env('PAYPAL_CLIENT_ID'),
         'secret' => env('PAYPAL_CLIENT_SECRET'),
