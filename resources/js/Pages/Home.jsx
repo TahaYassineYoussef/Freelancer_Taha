@@ -607,6 +607,7 @@ function TaskSection({ user }) {
                                 <input
                                     type="date"
                                     value={data.deadline}
+                                    min={new Date().toISOString().slice(0, 10)}
                                     onChange={(e) => setData('deadline', e.target.value)}
                                     className={inputCls}
                                 />

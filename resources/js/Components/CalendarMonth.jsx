@@ -50,19 +50,33 @@ export default function CalendarMonth({ renderDay, initialDate }) {
         setView({ year: d.getFullYear(), month: d.getMonth() });
     };
 
+    // Year options: a generous range around now, always including the current view.
+    const thisYear = new Date().getFullYear();
+    const years = [];
+    const from = Math.min(thisYear - 1, view.year);
+    const to = Math.max(thisYear + 6, view.year);
+    for (let y = from; y <= to; y++) years.push(y);
+
+    const selectCls = 'rounded-lg border border-white/15 bg-ink-800 px-2 py-1.5 text-sm font-bold text-white focus:border-gold focus:ring-gold';
+
     return (
         <div className="overflow-hidden rounded-2xl border border-white/10 bg-ink-700">
             {/* Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
-                <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+                <div className="flex items-center gap-1.5">
                     <button onClick={() => go(-1)} className="rounded-lg p-2 text-gray-300 hover:bg-white/10 hover:text-gold" aria-label="Previous month">
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     </button>
                     <button onClick={() => go(1)} className="rounded-lg p-2 text-gray-300 hover:bg-white/10 hover:text-gold" aria-label="Next month">
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </button>
+                    <select value={view.month} onChange={(e) => setView((v) => ({ ...v, month: Number(e.target.value) }))} className={selectCls} aria-label="Month">
+                        {MONTHS.map((m, i) => <option key={m} value={i} className="bg-ink-800 text-white">{t(m)}</option>)}
+                    </select>
+                    <select value={view.year} onChange={(e) => setView((v) => ({ ...v, year: Number(e.target.value) }))} className={selectCls} aria-label="Year">
+                        {years.map((y) => <option key={y} value={y} className="bg-ink-800 text-white">{y}</option>)}
+                    </select>
                 </div>
-                <h3 className="text-lg font-black text-white">{t(MONTHS[view.month])} {view.year}</h3>
                 <button onClick={goToday} className="rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold text-gray-200 hover:border-gold hover:text-gold">{t('Today')}</button>
             </div>
 
