@@ -18,22 +18,30 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // The freelancer (site owner / admin)
-        $taha = User::updateOrCreate(
-            ['email' => 'taha@freelancer.test'],
-            [
-                'name' => 'Taha Yassine Youssef',
-                'password' => Hash::make('password'),
-                'role' => 'freelancer',
-                'headline' => 'Full-Stack Developer & Software Engineer',
-                'bio' => 'I am Taha Yassine Youssef, a passionate full-stack developer specialising in '
-                    .'building modern web applications with Laravel, React and clean, scalable architecture. '
-                    .'I help startups and businesses turn ideas into polished digital products.',
-                'location' => 'Casablanca, Morocco',
-                'phone' => '+212 600-000000',
-                'email_verified_at' => now(),
-            ]
-        );
+        // The freelancer (site owner / admin) — the ONLY freelancer account.
+        // Keyed on the real email so seeding always targets this one account and
+        // can never create a second freelancer. The password is only set when the
+        // account is first created, so re-seeding never resets a live password.
+        $taha = User::firstOrNew(['email' => 'yassineyoussef248@gmail.com']);
+        $taha->fill([
+            'name' => 'Taha Yassine Youssef',
+            'role' => 'freelancer',
+            'headline' => 'Full-Stack Developer & Software Engineer',
+            'bio' => 'I am Taha Yassine Youssef, a passionate full-stack developer specialising in '
+                .'building modern web applications with Laravel, React and clean, scalable architecture. '
+                .'I help startups and businesses turn ideas into polished digital products.',
+            'location' => 'Sousse, Tunisia',
+            'phone' => '27617930',
+            'email_verified_at' => now(),
+        ]);
+        if (! $taha->exists) {
+            $taha->password = Hash::make('password');
+        }
+        $taha->save();
+
+        // Safety net: demote any other freelancer that somehow exists, so there
+        // is never more than one admin.
+        User::where('role', 'freelancer')->where('id', '!=', $taha->id)->update(['role' => 'client']);
 
         $taha->diplomas()->delete();
         $taha->experiences()->delete();
