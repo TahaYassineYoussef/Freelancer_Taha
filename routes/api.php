@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CallController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\FreelancerController;
@@ -80,6 +81,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [ClientController::class, 'notifications']);
     Route::post('/notifications/read', [ClientController::class, 'readAllNotifications']);
     Route::post('/notifications/{id}/read', [ClientController::class, 'readNotification']);
+
+    // Calls (WebRTC signalling, same contract as the web client)
+    Route::get('/calls/poll', [CallController::class, 'poll']);
+    Route::post('/calls/signal', [CallController::class, 'signal']);
+    Route::post('/calls/log', [CallController::class, 'log']);
 
     // Chat
     Route::get('/chat/partners', [ChatController::class, 'partners']);
