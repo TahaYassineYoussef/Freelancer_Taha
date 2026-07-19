@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'freelancer' => \App\Http\Middleware\EnsureUserIsFreelancer::class,
+            'track' => \App\Http\Middleware\TrackVisit::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -22,6 +22,7 @@ const ICONS = {
     list: 'M3 5h2v2H3V5zm0 6h2v2H3v-2zm0 6h2v2H3v-2zM7 5h14v2H7V5zm0 6h14v2H7v-2zm0 6h14v2H7v-2z',
     calendar: 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z',
     clock: 'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z',
+    chart: 'M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z',
 };
 
 function NavIcon({ d }) {
@@ -102,6 +103,7 @@ export default function PanelLayout({ title, children }) {
             )}
             {isFreelancer && (
                 <>
+                    <NavItem href={route('visitors.index')} icon={ICONS.chart} active={current?.startsWith('visitors')} onClick={close}>{t('Visitors')}</NavItem>
                     <NavItem href={route('payments.index')} icon={ICONS.cash} active={current?.startsWith('payments')} onClick={close}>{t('Payments')}</NavItem>
                     <NavItem href={route('tasks.index')} icon={ICONS.list} active={current?.startsWith('tasks')} badge={newTasks} onClick={close}>{t('Tasks')}</NavItem>
                     <NavItem href={route('work.index')} icon={ICONS.delivery} active={current?.startsWith('work')} onClick={close}>{t('Deliveries')}</NavItem>

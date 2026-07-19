@@ -56,6 +56,13 @@ return [
         'currency' => env('PAYPAL_CURRENCY', 'USD'),
     ],
 
+    // Google Analytics 4. Paste your Measurement ID (G-XXXXXXXXXX) into the .env
+    // as GOOGLE_ANALYTICS_ID and the tracking tag is added automatically.
+    // Leave it empty and no analytics script is loaded at all.
+    'google_analytics' => [
+        'id' => env('GOOGLE_ANALYTICS_ID'),
+    ],
+
     // Tunisian payment gateway that supports D17 (Konnect / Flouci / Paymee).
     // Fill these once you have a merchant account to enable automated D17 payments.
     'd17_gateway' => [
