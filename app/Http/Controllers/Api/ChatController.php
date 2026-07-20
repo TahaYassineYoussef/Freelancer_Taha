@@ -111,6 +111,10 @@ class ChatController extends Controller
                 'attachment_url' => $m->attachment_path ? url(Storage::url($m->attachment_path)) : null,
                 'attachment_name' => $m->attachment_name,
                 'attachment_mime' => $m->attachment_mime,
+                // Call-log entries render as a card instead of a text bubble.
+                'call_kind' => $m->call_kind,
+                'call_status' => $m->call_status,
+                'call_seconds' => $m->call_seconds,
             ])
             ->values();
     }
