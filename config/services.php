@@ -46,6 +46,9 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+        // Firebase web (serverClientId) that native Android sign-in mints its
+        // ID token for; the API verifies the token's audience against it.
+        'android_client_id' => env('GOOGLE_ANDROID_CLIENT_ID', '784467110916-9q7u3isane98cc4tg4e2uln365q2tti0.apps.googleusercontent.com'),
     ],
 
     // AI moderation (Claude). Without an API key the site falls back to the

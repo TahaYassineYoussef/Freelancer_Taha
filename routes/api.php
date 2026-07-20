@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 // Public
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/auth/google', [\App\Http\Controllers\Auth\GoogleController::class, 'exchangeIdToken']);
 Route::get('/portfolio', [PortfolioController::class, 'index']);
 Route::get('/translations/{locale}', [ClientController::class, 'translations']);
 Route::post('/contact', [ClientController::class, 'contact'])->middleware('throttle:5,1');

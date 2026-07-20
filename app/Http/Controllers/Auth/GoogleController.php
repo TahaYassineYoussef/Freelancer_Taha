@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -27,6 +29,76 @@ class GoogleController extends Controller
         }
 
         return Socialite::driver('google')->redirect();
+    }
+
+    /**
+     * Native Google Sign-In from the mobile app.
+     *
+     * The app obtains an ID token straight from Google Play Services, so there
+     * is no browser redirect and no redirect-URI restriction — which is what
+     * makes this work on a real phone over a LAN address.
+     *
+     * The token is verified with Google before it is trusted.
+     */
+    public function exchangeIdToken(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'id_token' => ['required', 'string'],
+        ]);
+
+        $response = Http::get('https://oauth2.googleapis.com/tokeninfo', [
+            'id_token' => $data['id_token'],
+        ]);
+
+        if (! $response->successful()) {
+            return response()->json(['message' => 'Google rejected that sign-in.'], 401);
+        }
+
+        $claims = $response->json();
+
+        // The token must have been minted for this project, or anyone could
+        // present a Google token from any app.
+        $allowed = array_filter([
+            config('services.google.client_id'),
+            config('services.google.android_client_id'),
+        ]);
+
+        if ($allowed && ! in_array($claims['aud'] ?? '', $allowed, true)) {
+            Log::warning('Google id_token audience mismatch', ['aud' => $claims['aud'] ?? null]);
+
+            return response()->json(['message' => 'This sign-in was not issued for this app.'], 401);
+        }
+
+        if (($claims['email_verified'] ?? 'false') !== 'true' || empty($claims['email'])) {
+            return response()->json(['message' => 'That Google account has no verified email.'], 401);
+        }
+
+        $user = User::where('google_id', $claims['sub'])->first()
+            ?? User::where('email', $claims['email'])->first();
+
+        if ($user) {
+            $user->forceFill([
+                'google_id' => $claims['sub'],
+                'email_verified_at' => $user->email_verified_at ?? now(),
+            ])->save();
+        } else {
+            $user = User::create([
+                'name' => $claims['name'] ?? Str::before($claims['email'], '@'),
+                'email' => $claims['email'],
+                'google_id' => $claims['sub'],
+                'role' => 'client',
+                'password' => null,
+                'email_verified_at' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'token' => $user->createToken('mobile')->plainTextToken,
+            'user' => [
+                'id' => $user->id, 'name' => $user->name,
+                'email' => $user->email, 'role' => $user->role,
+            ],
+        ]);
     }
 
     /**
