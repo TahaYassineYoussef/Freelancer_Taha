@@ -16,9 +16,16 @@ import { useEffect, useRef, useState } from 'react';
  *   call.handleSignal(sig)   // feed every incoming signal from the poll
  *   call.startCall(true)     // start a video call (false = audio only)
  */
+// STUN finds each peer's public address; TURN relays the media when the two
+// ends are on different networks (e.g. a phone on 4G calling this browser on
+// Wi-Fi), which STUN alone can't bridge. openrelay is a free public TURN for
+// development — replace with your own for production.
 const ICE_SERVERS = [
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
 ];
 
 /**
